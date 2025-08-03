@@ -32,7 +32,6 @@ local function MineOres()
         )
         Mine:FireServer(minePos, MiningStrength)
         task.wait(0.1)
-        print("Mined")
     end
 end
 

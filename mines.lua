@@ -11,13 +11,15 @@ local MineTab = Window:MakeTab({
 -- Init
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 local items = workspace:FindFirstChild("Items")
 
 -- Variables
 local AutoMine = false
 local ColOres = false
-local MiningStrength = 1 -- Default to Max
+local MiningStrength = 1
 local MiningThread = nil
 local OresThread = nil
 
@@ -55,6 +57,20 @@ local function CollectOres()
                 end
                 task.wait()
             end
+        end
+    end
+end
+
+local function SellInventory()
+    local lastPos = root.CFrame
+    for _, npc in pairs(workspace:GetChildren()) do
+        if npc:IsA("Model") and npc:GetAttribute("Name") == "Trader Tom" and npc:FindFirstChild("HumanoidRootPart") then
+            root.CFrame = npc.HumanoidRootPart.CFrame
+            task.wait(0.5)
+            game.ReplicatedStorage.Ml.SellInventory:FireServer()
+            task.wait(0.5)
+            root.CFrame = lastPos
+            break
         end
     end
 end
@@ -140,6 +156,10 @@ local CollectOresToggle = MineTab:AddToggle({Name = "Collect Ores",  Default = f
             })
         end
     end
+end})
+
+MineTab:AddButton({Name = "Sell Everything", Callback = function()
+    SellInventory()
 end})
 
 OrionLib:Init()

@@ -1,3 +1,5 @@
+-- loadstring: loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/mines.lua"))()
+
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/source'))()
 local Window = OrionLib:MakeWindow({Name = "clock.lua", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.mines"})
 local MineTab = Window:MakeTab({
@@ -41,7 +43,7 @@ local function CollectOres()
         local items = items:GetChildren()
         if #items > 0 then
             for _, item in ipairs(items) do
-                if not settings.auto_collect_ores then
+                if not ColOres then
                     break
                 end
                 local success, err = pcall(function()

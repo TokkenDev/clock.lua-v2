@@ -52,12 +52,11 @@ local function CollectOres()
                 end)
                 if not success then
                     warn("Error collecting item:", err)
-                else
-                    print("Collected item:", item.Name)
                 end
-                task.wait()
+                task.wait(0.5)
             end
         end
+        task.wait(0.5)
     end
 end
 

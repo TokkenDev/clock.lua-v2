@@ -1,5 +1,6 @@
--- loadstring: loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/mines.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/mines.lua"))() --
 
+-- Library --
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/source'))()
 local Window = OrionLib:MakeWindow({Name = "clock.lua", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.mines"})
 local MineTab = Window:MakeTab({
@@ -7,8 +8,23 @@ local MineTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
+local TeleportTab = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+local ShopTab = Window:MakeTab({
+    Name = "Shop",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+local MiscTab = Window:MakeTab({
+    Name = "Misc",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
 
--- Init
+-- Init --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -16,14 +32,14 @@ local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 local items = workspace:FindFirstChild("Items")
 
--- Variables
+-- Variables --
 local AutoMine = false
 local ColOres = false
 local MiningStrength = 1
 local MiningThread = nil
 local OresThread = nil
 
--- Functions
+-- Functions --
 local function MineOres()
     while AutoMine do
         local camera = workspace.CurrentCamera.CFrame.LookVector
@@ -74,7 +90,9 @@ local function SellInventory()
     end
 end
 
--- Tab Elements
+-- Tab Elements --
+
+-- Mining --
 local AutoMineToggle = MineTab:AddToggle({Name = "Auto Mine",  Default = false,  Callback = function(bool)
     AutoMine = bool
     if AutoMine then
@@ -159,6 +177,39 @@ end})
 
 MineTab:AddButton({Name = "Sell Everything", Callback = function()
     SellInventory()
+end})
+
+-- Teleport --
+TeleportTab:AddButton({Name = "Forest", Callback = function()
+    root.Position = Vector3.new(998, 245, -71)
+end})
+
+TeleportTab:AddButton({Name = "Mine Passage", Callback = function()
+    root.Position = Vector3.new(1020, 181, -1451)
+end})
+
+TeleportTab:AddButton({Name = "Crystal Cave", Callback = function()
+    root.Position = Vector3.new(1011, 177, -2910)
+end})
+
+TeleportTab:AddButton({Name = "Merchant Mike (Ores)", Callback = function()
+    root.Position = Vector3.new(1043, 245, -198)
+end})
+
+TeleportTab:AddButton({Name = "Driller Dan (Drills)", Callback = function()
+    root.Position = Vector3.new(906, 245, -454)
+end})
+
+TeleportTab:AddButton({Name = "Sally (Pickaxes)", Callback = function()
+    root.Position = Vector3.new(1054, 245, -283)
+end})
+
+TeleportTab:AddButton({Name = "Bob (Radars)", Callback = function()
+    root.Position = Vector3.new(1085, 245, -468)
+end})
+
+TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
+    root.Position = Vector3.new(954, 245, -222)
 end})
 
 OrionLib:Init()

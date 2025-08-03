@@ -1,0 +1,329 @@
+-- Generated with Sigma Spy Github: https://github.com/depthso/Sigma-Spy
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Remote
+local DataUpdated = ReplicatedStorage["shared/network/DataNetwork@GlobalDataEvents"].DataUpdated -- RemoteEvent 
+
+-- This data was received from the server
+firesignal(DataUpdated.OnClientEvent, 
+    {
+        "Inventory",
+        "Inventory.Items",
+        "Inventory.DiscoveredItems",
+        "Worlds"
+    },
+    {
+        Purchases = {},
+        ForeverPack = {
+            current = 2
+        },
+        IsInGroup = false,
+        Refiner = {
+            Refining = false,
+            CompletionTime = 0
+        },
+        LastLogin = 1754263798,
+        Settings = {
+            PerformanceMode = false,
+            VFXEnabled = true,
+            SFXEnabled = true,
+            MusicEnabled = true
+        },
+        Crafting = {
+            CraftTime = 0,
+            Claimable = false
+        },
+        Level = 590,
+        XP = 2279419.0500000003,
+        Playtime = 17971,
+        InvisibleSettings = {
+            QuestsEnabled = true
+        },
+        Discounts = {
+            ["Corrupted Set Sale"] = 1754147626
+        },
+        RadarFilters = {},
+        Miners = {
+            UnclaimedOres = {
+                ["Rookie Miner"] = {
+                    ["Copper Ore"] = 2,
+                    ["Iron Ore"] = 2,
+                    ["Silver Ore"] = 4,
+                    Diamond = 1,
+                    ["Tin Ore"] = 6
+                }
+            },
+            LastClaimed = 0,
+            Owned = {
+                "Rookie Miner"
+            },
+            MinerData = {
+                ["Rookie Miner"] = {
+                    Level = 3
+                }
+            }
+        },
+        DailyRewards = {
+            Day = 2,
+            LastClaimed = 1754331022
+        },
+        HasBeenPromptedForNotifications = true,
+        Inventory = {
+            Pickaxes = {
+                ["Iron Pickaxe"] = {
+                    Level = 1
+                },
+                ["Rusty Pickaxe"] = {
+                    Level = 1
+                },
+                ["Starter Pickaxe"] = {
+                    Level = 1
+                },
+                ["Stone Pickaxe"] = {
+                    Level = 1
+                },
+                ["Sapphire Pickaxe"] = {
+                    Level = 1
+                },
+                ["Amethyst Pickaxe"] = {
+                    Level = 1
+                },
+                ["Wooden Pickaxe"] = {
+                    Level = 1
+                },
+                ["Quartz Pickaxe"] = {
+                    Level = 1
+                }
+            },
+            EquippedPickaxe = "Celestite Pickaxe",
+            ToolboxSlots = {
+                ["Heavy Drill"] = {
+                    Index = 3
+                },
+                ["Amethyst Radar"] = {
+                    Index = 2
+                },
+                ["Quartz Pickaxe"] = {
+                    Index = 1
+                }
+            },
+            Dynamite = {},
+            Drills = {
+                ["Heavy Drill"] = {
+                    Level = 1
+                },
+                ["Weak Drill"] = {
+                    Level = 1
+                }
+            },
+            Items = {
+                ["Crystal Lost Rail"] = {},
+                ["Shiny Rusty Gear"] = {},
+                ["Crystal Uranium"] = {},
+                ["Shiny Copper Ore"] = {},
+                ["Shiny King's Ring"] = {},
+                ["Crystal Arrowhead"] = {},
+                ["Rainbow Ruby Ore"] = {},
+                ["Crystal Quartz Ore"] = {},
+                ["Giant Treasure Chest"] = {},
+                ["Rainbow Dinosaur Bone"] = {},
+                ["Ship Wheel"] = {},
+                ["Shiny King's Shield"] = {},
+                ["Shiny Diamond"] = {},
+                ["Ancient Arrow"] = {},
+                ["Passage Key"] = {},
+                ["Crystal Coal Ore"] = {},
+                ["Shiny Amethyst Ore"] = {},
+                ["Tin Ore"] = {},
+                ["Quartz Ore"] = {},
+                ["Crystal Ancient Relic"] = {},
+                ["Giant Cobalt"] = {},
+                ["Shiny Arrowhead"] = {},
+                ["Moai Head"] = {},
+                Minecart = {},
+                ["Shiny Turquoise Ore"] = {},
+                ["Crystal Ruby Ore"] = {},
+                ["Crystal Sapphire Ore"] = {},
+                ["Fossil Hand"] = {},
+                ["Dinosaur Bone"] = {},
+                ["Cobalt Ore"] = {},
+                ["Ancient Coin"] = {},
+                ["Rainbow Zinc Ore"] = {},
+                ["Shiny Treasure Chest"] = {},
+                ["Egyptian Sphinx"] = {},
+                ["Crystal Diamond"] = {},
+                ["Crystal Platinum Ore"] = {},
+                ["Alien Artifact"] = {},
+                ["Fossil Fin"] = {},
+                Anchor = {},
+                ["Rainbow Emerald Ore"] = {},
+                ["Crystal Giant Platinum"] = {},
+                ["Gold Ore"] = {},
+                ["Treasure Chest"] = {},
+                Diamond = {},
+                ["Shiny Cobalt Ore"] = {},
+                ["Sapphire Ore"] = {},
+                ["King's Shield"] = {},
+                ["Toxic Crystal"] = {},
+                ["Crystal Ancient Coin"] = {},
+                ["Shiny Silver Ore"] = {},
+                ["Crystal Gold Ore"] = {},
+                ["Lava Rock"] = {},
+                ["Crystal King's Ring"] = {},
+                ["Rainbow Diamond"] = {},
+                ["Rainbow Coal Ore"] = {},
+                ["Shiny Quartz Ore"] = {},
+                ["Greek Column"] = {},
+                ["Shiny Dinosaur Bone"] = {},
+                ["Rainbow Silver Ore"] = {},
+                ["Nickel Ore"] = {},
+                ["Shiny Coal Ore"] = {},
+                ["Ancient Relic"] = {},
+                ["Emerald Ore"] = {},
+                ["Rainbow Platinum Ore"] = {},
+                ["Crystal Rusty Gear"] = {},
+                ["Rainbow Giant Platinum"] = {},
+                ["Crystal Amethyst Ore"] = {},
+                ["Shiny Sapphire Ore"] = {},
+                ["Iron Ore"] = {},
+                ["Turquoise Ore"] = {},
+                ["Lost Rail"] = {},
+                ["Shiny Giant Cobalt"] = {},
+                ["King's Ring"] = {},
+                ["Crystal Dinosaur Bone"] = {},
+                ["Crystal Giant Cobalt"] = {},
+                ["Lost Satellite"] = {},
+                ["Crystal Fossil Fin"] = {},
+                ["Giant Platinum"] = {},
+                ["Shiny Fossil Hand"] = {},
+                ["Crystal Emerald Ore"] = {},
+                ["Giant Uranium"] = {},
+                ["Crystal Cobalt Ore"] = {},
+                ["Shiny Tin Ore"] = {},
+                ["Copper Ore"] = {},
+                ["Rainbow Amethyst Ore"] = {},
+                ["Rusty Gear"] = {},
+                ["Crystal Nickel Ore"] = {},
+                ["Crystal Copper Ore"] = {},
+                ["Giant Diamond"] = {},
+                ["Crystal Tin Ore"] = {},
+                ["Glowing Mushroom"] = {},
+                ["Bat Wing"] = {},
+                ["Shiny Giant Platinum"] = {},
+                ["Ruby Ore"] = {},
+                ["Rainbow Quartz Ore"] = {},
+                ["Giant Rainbow Crystal"] = {},
+                ["Coal Ore"] = {},
+                ["Crystal Silver Ore"] = {},
+                ["Amethyst Ore"] = {},
+                ["Crystal Toxic Crystal"] = {},
+                Uranium = {},
+                ["Shiny Nickel Ore"] = {},
+                ["Platinum Ore"] = {},
+                ["Silver Ore"] = {},
+                ["Crystal Zinc Ore"] = {},
+                ["Shiny Toxic Crystal"] = {},
+                ["Rainbow Cobalt Ore"] = {},
+                ["Crystal Turquoise Ore"] = {},
+                ["Shiny Uranium"] = {},
+                ["Rainbow Copper Ore"] = {},
+                ["Shiny Platinum Ore"] = {},
+                ["Shiny Emerald Ore"] = {},
+                ["Crystal Iron Ore"] = {},
+                ["Crystal Giant Diamond"] = {},
+                Arrowhead = {},
+                ["Zinc Ore"] = {},
+                ["Rainbow Nickel Ore"] = {},
+                ["Crystal Ancient Skull"] = {},
+                ["Ancient Skull"] = {},
+                ["Ice Shard"] = {
+                    "Ice Shard_fa43e45c-6b67-40e4-8645-5fedc5aaa219_1.22"
+                },
+                ["Shiny Ruby Ore"] = {},
+                ["Crystal Fossil Hand"] = {}
+            },
+            EquippedRadar = "Amethyst Radar",
+            NotifiedItems = {
+                "Wooden Pickaxe"
+            },
+            UnlockedPassages = {},
+            EquippedDrill = "Heavy Drill",
+            DiscoveredItems = {
+                "Diamond"
+            },
+            Radars = {
+                ["Amethyst Radar"] = {
+                    Range = 38,
+                    Level = 1
+                },
+                ["Gold Radar"] = {
+                    Range = 36,
+                    Level = 1
+                },
+                ["Diamond Radar"] = {
+                    Range = 38,
+                    Level = 1
+                },
+                ["Copper Radar"] = {
+                    Range = 26,
+                    Level = 1
+                },
+                ["Starter Radar"] = {
+                    Range = 50,
+                    Level = 1
+                }
+            },
+            LockedItems = {
+                "Ice Shard_fa43e45c-6b67-40e4-8645-5fedc5aaa219_1.22"
+            }
+        },
+        LastLogout = 1754263796,
+        Worlds = {
+            Discovered = {
+                "Forest"
+            },
+            Current = "Mine Passage"
+        },
+        Info = {
+            CanSendInvite = true
+        },
+        RobuxSpent = 0,
+        Badges = {
+            "Welcome",
+            "First Pickaxe"
+        },
+        Gamepasses = {},
+        LoggedFunnels = {
+            "Player Joined",
+            "Passed Loading Screen",
+            "Equipped Radar",
+            "Mine 2 Ores",
+            "Sold to Trader Tom",
+            "Bought Pickaxe",
+            "Bought Radar",
+            "Bought Offline Miner",
+            "Claimed Daily Reward",
+            "Entered Crystal Cave"
+        },
+        Quests = {
+            Completed = {
+                "tutorial",
+                "talkToShadySam",
+                "talkToThomas"
+            },
+            Active = {
+                talkToMinerMike = {
+                    QuestId = "talkToMinerMike",
+                    Objectives = {
+                        {
+                            Goal = 1,
+                            Current = 0
+                        }
+                    }
+                }
+            }
+        },
+        Sheckles = 153339
+    }
+)

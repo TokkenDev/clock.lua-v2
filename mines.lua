@@ -305,56 +305,60 @@ TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
 end})
 
 -- Shop --
+MiscTab:AddLabel("-- If you try to buy something you already own here, you will WASTE MONEY. --")
+
 ShopTab:AddDropdown({Name = "Pickaxes", Options = {
-"Rusty Pickaxe ($?)",
-"Wooden Pickaxe ($?)", 
-"Stone Pickaxe ($?)", 
-"Iron Pickaxe ($?)", 
-"Emerald Pickaxe ($?)", 
-"Sapphire Pickaxe ($?)", 
-"Ruby Pickaxe ($?)", 
-"Amethyst Pickaxe ($?)", 
-"Quartz Pickaxe ($?)", 
-"Citrine Pickaxe ($?)", 
-"Obsidian Pickaxe ($?)", 
-"Celestite Pickaxe ($?)", 
-"Frostbite Pickaxe ($?)", 
-"Sunfrost Pickaxe ($?)", 
-"Rosefrost Pickaxe ($?)", 
-"Shadowfrost Pickaxe ($?)"
+"Rusty Pickaxe ($5)",
+"Wooden Pickaxe ($250)", 
+"Stone Pickaxe ($1,350)", 
+"Iron Pickaxe ($5,000)", 
+"Emerald Pickaxe ($20,000)", 
+"Sapphire Pickaxe ($40,000)", 
+"Ruby Pickaxe ($100,000)", 
+"Amethyst Pickaxe ($100,000)", 
+"Quartz Pickaxe ($500,000)", 
+"Citrine Pickaxe ($1,000,000)", 
+"Obsidian Pickaxe ($2,500,000)", 
+"Celestite Pickaxe ($5,000,000)", 
+"Frostbite Pickaxe ($6,000,000)", 
+"Sunfrost Pickaxe ($7,500,000)", 
+"Rosefrost Pickaxe ($9,000,000)", 
+"Shadowfrost Pickaxe ($12,500,000)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})
 
 ShopTab:AddDropdown({Name = "Radars", Options = {
-"Copper Radar ($?)", 
+"Copper Radar ($50)", 
 "Iron Radar ($500)", 
-"Gold Radar ($?)", 
-"Diamond Radar ($?)", 
-"Emerald Radar ($?)", 
-"Sapphire Radar ($?)", 
-"Ruby Radar ($?)", 
-"Amethyst Radar ($?)", 
-"Quartz Radar ($?)", 
-"Citrine Radar ($?)", 
-"Obsidian Radar ($?)", 
-"Celestite Radar ($?)", 
-"Frostbite Radar ($?)", 
-"Sunfrost Radar ($?)", 
-"Rosefrost Radar ($?)", 
+"Gold Radar ($1,500)", 
+"Diamond Radar ($4,000)", 
+"Emerald Radar ($20,000)", 
+"Sapphire Radar ($40,000)", 
+"Ruby Radar ($70,000)", 
+"Amethyst Radar ($100,000)", 
+"Quartz Radar ($1,500,000)", 
+"Citrine Radar ($3,500,000)", 
+"Obsidian Radar ($5,000,000)", 
+"Celestite Radar ($7,000,000)", 
+"Frostbite Radar ($7,000,000)", 
+"Sunfrost Radar ($8,500,000)", 
+"Rosefrost Radar ($10,000,000)", 
 "Shadowfrost Radar ($13,000,000)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})
 
 ShopTab:AddDropdown({Name = "Drills", Options = {
-"Weak Drill ($?)", 
-"Light Drill ($?)", 
-"Heavy Drill ($?)"
+"Weak Drill ($25,000)", 
+"Light Drill ($50,000)", 
+"Heavy Drill ($250,000)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})
 
 -- Misc --
+MiscTab:AddLabel("-- Made with <3 by tokkendev --")
+MiscTab:AddLabel("-- Please ask if you want to copy parts of the script, thanks c: --")
 
 OrionLib:Init()

@@ -25,6 +25,7 @@ local MiscTab = Window:MakeTab({
 })
 
 -- Init --
+local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -181,35 +182,51 @@ end})
 
 -- Teleport --
 TeleportTab:AddButton({Name = "Forest", Callback = function()
-    root.Position = Vector3.new(998, 245, -71)
+    local targetPos = Vector3.new(998, 245, -71)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Mine Passage", Callback = function()
-    root.Position = Vector3.new(1020, 181, -1451)
+    local targetPos = Vector3.new(1020, 181, -1451)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Crystal Cave", Callback = function()
-    root.Position = Vector3.new(1011, 177, -2910)
+    local targetPos = Vector3.new(1011, 177, -2910)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Merchant Mike (Ores)", Callback = function()
-    root.Position = Vector3.new(1043, 245, -198)
+    local targetPos = Vector3.new(1043, 245, -198)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Driller Dan (Drills)", Callback = function()
-    root.Position = Vector3.new(906, 245, -454)
+    local targetPos = Vector3.new(906, 245, -454)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Sally (Pickaxes)", Callback = function()
-    root.Position = Vector3.new(1054, 245, -283)
+    local targetPos = Vector3.new(1054, 245, -283)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Bob (Radars)", Callback = function()
-    root.Position = Vector3.new(1085, 245, -468)
+    local targetPos = Vector3.new(1085, 245, -468)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
-    root.Position = Vector3.new(954, 245, -222)
+    local targetPos = Vector3.new(954, 245, -222)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    TweenService:Create(root, tweenInfo, {Position = targetPos}):Play()
 end})
 
 OrionLib:Init()

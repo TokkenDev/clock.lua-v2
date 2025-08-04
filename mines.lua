@@ -393,7 +393,7 @@ MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color 
     end)
 end})
 
-TeleportTab:AddButton({Name = "Remove Fog", Callback = function()
+MiscTab:AddButton({Name = "Remove Fog", Callback = function()
 	Lighting.FogEnd = 100000
 	for i,v in pairs(Lighting:GetDescendants()) do
 		if v:IsA("Atmosphere") then

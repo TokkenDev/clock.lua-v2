@@ -31,14 +31,27 @@ local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
+local Drill = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningFunctions"].Drill
 local items = workspace:FindFirstChild("Items")
+
+Drill:FireServer(
+    42,
+    {
+        direction = Vector3.new(-2, -5, -9),
+        heat = 97.03280401229858,
+        overheated = false
+    }
+)
+
 
 -- Variables --
 local AutoMine = false
 local ColOres = false
+local AutoDrill = false
 local MiningStrength = 1
 local MiningThread = nil
 local OresThread = nil
+local DrillingThread = nil
 
 -- Functions --
 local function MineOres()
@@ -51,6 +64,19 @@ local function MineOres()
         )
         Mine:FireServer(minePos, MiningStrength)
         task.wait(0.1)
+    end
+end
+
+local function MineOresDrill()
+    while AutoDrill do
+        local camera = workspace.CurrentCamera.CFrame.LookVector
+        local minePos = Vector3.new(
+            math.round(math.clamp(camera.X * 10, -10, 10)),
+            math.round(math.clamp(camera.Y * 10, -10, 10)),
+            math.round(math.clamp(camera.Z * 10, -10, 10))
+        )
+        Drill:FireServer(math.random(0,100), {minePos, 0, false})
+        task.wait(0.05)
     end
 end
 
@@ -151,6 +177,30 @@ MineTab:AddDropdown({
         end
     end
 })
+
+local AutoDrillToggle = MineTab:AddToggle({Name = "Auto Drill (REQUIRES ANY DRILL)",  Default = false,  Callback = function(bool)
+    AutoDrill = bool
+    if AutoDrill then
+        DrillingThread = task.spawn(MineOresDrill)
+        OrionLib:MakeNotification({
+            Name = "Auto Drill",
+            Content = "Auto drill is now active.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    else
+        if DrillingThread then
+            task.cancel(DrillingThread)
+            DrillingThread = nil
+            OrionLib:MakeNotification({
+                Name = "Auto Drill",
+                Content = "Auto drill has been disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        end
+    end
+end})
 
 local CollectOresToggle = MineTab:AddToggle({Name = "Collect Ores",  Default = false,  Callback = function(bool)
     ColOres = bool

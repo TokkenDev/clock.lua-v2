@@ -308,7 +308,7 @@ TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
 end})
 
 -- Shop --
-ShopTab:AddLabel("If you try to buy something you already own here, you will WASTE MONEY.")
+ShopTab:AddParagraph("WARNING","If you try to buy something you already own here, you will WASTE MONEY.")
 
 ShopTab:AddDropdown({Name = "Pickaxes", Options = {
 "Rusty Pickaxe ($5)",

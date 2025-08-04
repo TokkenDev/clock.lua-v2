@@ -34,15 +34,6 @@ local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"
 local Drill = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningFunctions"].Drill
 local items = workspace:FindFirstChild("Items")
 
-Drill:FireServer(
-    42,
-    {
-        direction = Vector3.new(-2, -5, -9),
-        heat = 97.03280401229858,
-        overheated = false
-    }
-)
-
 
 -- Variables --
 local AutoMine = false
@@ -75,7 +66,7 @@ local function MineOresDrill()
             math.round(math.clamp(camera.Y * 10, -10, 10)),
             math.round(math.clamp(camera.Z * 10, -10, 10))
         )
-        Drill:FireServer(math.random(0,100), {minePos, 0, false})
+        Drill:FireServer(math.random(0,100), {minePos, math.random(0.0, 90.0), false})
         task.wait(0.05)
     end
 end

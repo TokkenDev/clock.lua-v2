@@ -66,7 +66,7 @@ local function MineOresDrill()
             math.round(math.clamp(camera.Y * 10, -10, 10)),
             math.round(math.clamp(camera.Z * 10, -10, 10))
         )
-        Drill:FireServer(math.random(0,100), {minePos, math.random(0.0, 90.0), false})
+        Drill:FireServer(9e9, {direction = minePos, heat = 0, overheated = false})
         task.wait(0.05)
     end
 end

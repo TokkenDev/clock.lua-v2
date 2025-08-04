@@ -33,7 +33,7 @@ local Mouse = plr:GetMouse()
 local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 local Drill = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningFunctions"].Drill
-local UseDynamite = ReplicatedStorage["shared/network/DynamiteNetwork@GlobalDynamiteFunctions"].UseDynamite
+local Dynamite = ReplicatedStorage["shared/network/DynamiteNetwork@GlobalDynamiteFunctions"].UseDynamite
 local items = workspace:FindFirstChild("Items")
 
 -- Variables --
@@ -75,7 +75,7 @@ end
 local function UseDynamite()
     while AutoDynamite do
         local hitPosition = Mouse.Hit.Position
-        UseDynamite:FireServer(math.random(0,9e9), hitPosition)
+        Dynamite:FireServer(math.random(0,9e9), hitPosition)
         task.wait(0.5)
     end
 end

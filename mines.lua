@@ -308,7 +308,7 @@ TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
 end})
 
 -- Shop --
-MiscTab:AddLabel("-- If you try to buy something you already own here, you will WASTE MONEY. --")
+ShopTab:AddLabel("If you try to buy something you already own here, you will WASTE MONEY.")
 
 ShopTab:AddDropdown({Name = "Pickaxes", Options = {
 "Rusty Pickaxe ($5)",
@@ -360,8 +360,15 @@ ShopTab:AddDropdown({Name = "Drills", Options = {
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})
 
+ShopTab:AddDropdown({Name = "Dynamites", Options = {
+"Light Dynamite ($600,000)",
+"Heavy Dynamite ($1,000,000)"
+}, Callback = function(Value)
+	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
+end})
+
 -- Misc --
-MiscTab:AddLabel("-- Made with <3 by tokkendev --")
+MiscTab:AddLabel("Made with <3 by tokkendev")
 
 MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callback = function(bool)
     if bool then
@@ -389,7 +396,7 @@ end})
 
 MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, ValueName = "ws", Callback = function(Value)
     pcall(function()
-        plr.Humanoid.WalkSpeed = Value
+        plr.Character.Humanoid.WalkSpeed = Value
     end)
 end})
 

@@ -29,11 +29,12 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
+local Mouse = plr:GetMouse()
 local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 local Drill = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningFunctions"].Drill
+local UseDynamite = ReplicatedStorage["shared/network/DynamiteNetwork@GlobalDynamiteFunctions"].UseDynamite
 local items = workspace:FindFirstChild("Items")
-
 
 -- Variables --
 local AutoMine = false
@@ -66,8 +67,16 @@ local function MineOresDrill()
             math.round(math.clamp(camera.Y * 10, -10, 10)),
             math.round(math.clamp(camera.Z * 10, -10, 10))
         )
-        Drill:FireServer(9e9, {direction = minePos, heat = 0, overheated = false})
+        Drill:FireServer(math.random(0,9e9), {direction = minePos, heat = 0, overheated = false})
         task.wait(0.05)
+    end
+end
+
+local function UseDynamite()
+    while AutoDynamite do
+        local hitPosition = Mouse.Hit.Position
+        UseDynamite:FireServer(math.random(0,9e9), hitPosition)
+        task.wait(0.5)
     end
 end
 
@@ -146,29 +155,6 @@ local AutoMineToggle = MineTab:AddToggle({Name = "Auto Mine",  Default = false, 
     end
 end})
 
-MineTab:AddDropdown({
-    Name = "Mining Strength", 
-    Default = "Max", 
-    Options = {"Max", "Good", "Decent", "Bad"}, 
-    Callback = function(val)
-        if val == "Max" then
-            MiningStrength = 1
-        elseif val == "Good" then
-            MiningStrength = 0.8
-        elseif val == "Decent" then
-            MiningStrength = 0.7
-        elseif val == "Bad" then
-            MiningStrength = 0.6
-        end
-        if AutoMine then
-            if MiningThread then
-                task.cancel(MiningThread)
-            end
-            MiningThread = task.spawn(MineOres)
-        end
-    end
-})
-
 local AutoDrillToggle = MineTab:AddToggle({Name = "Auto Drill (REQUIRES ANY DRILL)",  Default = false,  Callback = function(bool)
     AutoDrill = bool
     if AutoDrill then
@@ -192,6 +178,53 @@ local AutoDrillToggle = MineTab:AddToggle({Name = "Auto Drill (REQUIRES ANY DRIL
         end
     end
 end})
+
+local AutoDynamiteToggle = MineTab:AddToggle({Name = "Auto Dynamite (REQUIRES ANY DYNAMITE)",  Default = false,  Callback = function(bool)
+    AutoDynamite = bool
+    if AutoDynamite then
+        DynamiteThread = task.spawn(UseDynamite)
+        OrionLib:MakeNotification({
+            Name = "Auto Dynamite",
+            Content = "Auto dynamite is now active.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    else
+        if DynamiteThread then
+            task.cancel(DynamiteThread)
+            DynamiteThread = nil
+            OrionLib:MakeNotification({
+                Name = "Auto Dynamite",
+                Content = "Auto dynamite has been disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        end
+    end
+end})
+
+MineTab:AddDropdown({
+    Name = "Mining Strength", 
+    Default = "Max", 
+    Options = {"Max", "Good", "Decent", "Bad"}, 
+    Callback = function(val)
+        if val == "Max" then
+            MiningStrength = 1
+        elseif val == "Good" then
+            MiningStrength = 0.8
+        elseif val == "Decent" then
+            MiningStrength = 0.7
+        elseif val == "Bad" then
+            MiningStrength = 0.6
+        end
+        if AutoMine then
+            if MiningThread then
+                task.cancel(MiningThread)
+            end
+            MiningThread = task.spawn(MineOres)
+        end
+    end
+})
 
 local CollectOresToggle = MineTab:AddToggle({Name = "Collect Ores",  Default = false,  Callback = function(bool)
     ColOres = bool

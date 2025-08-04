@@ -29,6 +29,7 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
+local Lighting = game:GetService("Lighting")
 local Mouse = plr:GetMouse()
 local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
@@ -45,6 +46,8 @@ local MiningStrength = 1
 local MiningThread = nil
 local OresThread = nil
 local DrillingThread = nil
+local DynamiteThread = nil
+local PromptButtonHoldBegan = nil
 
 -- Functions --
 local function MineOres()
@@ -359,6 +362,44 @@ end})
 
 -- Misc --
 MiscTab:AddLabel("-- Made with <3 by tokkendev --")
-MiscTab:AddLabel("-- Please ask if you want to copy parts of the script, thanks c: --")
+
+MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callback = function(bool)
+    if bool then
+        if fireproximityprompt then
+            execCmd("uninstantproximityprompts")
+            wait(0.1)
+            PromptButtonHoldBegan = ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+                fireproximityprompt(prompt)
+            end)
+        else
+            OrionLib:MakeNotification({
+                Name = "Incompatible Exploit",
+                Content = "Your exploit is incompatible with fireproximityprompt.",
+                Image = "rbxassetid://4483345998",
+                Time = 6
+            })
+        end
+    else
+        if PromptButtonHoldBegan then
+            PromptButtonHoldBegan:Disconnect()
+            PromptButtonHoldBegan = nil
+        end
+    end
+end})
+
+MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, ValueName = "ws", Callback = function(Value)
+    pcall(function()
+        plr.Humanoid.WalkSpeed = Value
+    end)
+end})
+
+TeleportTab:AddButton({Name = "Remove Fog", Callback = function()
+	Lighting.FogEnd = 100000
+	for i,v in pairs(Lighting:GetDescendants()) do
+		if v:IsA("Atmosphere") then
+			v:Destroy()
+		end
+	end
+end})
 
 OrionLib:Init()

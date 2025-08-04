@@ -34,6 +34,7 @@ local root = plr.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 local Drill = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningFunctions"].Drill
 local Dynamite = ReplicatedStorage["shared/network/DynamiteNetwork@GlobalDynamiteFunctions"].UseDynamite
+local BuyItem = ReplicatedStorage.Ml.BuyItem
 local items = workspace:FindFirstChild("Items")
 
 -- Variables --
@@ -302,5 +303,58 @@ TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
     TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
 end})
+
+-- Shop --
+ShopTab:AddDropdown({Name = "Pickaxes", Options = {
+"Rusty Pickaxe ($?)",
+"Wooden Pickaxe ($?)", 
+"Stone Pickaxe ($?)", 
+"Iron Pickaxe ($?)", 
+"Emerald Pickaxe ($?)", 
+"Sapphire Pickaxe ($?)", 
+"Ruby Pickaxe ($?)", 
+"Amethyst Pickaxe ($?)", 
+"Quartz Pickaxe ($?)", 
+"Citrine Pickaxe ($?)", 
+"Obsidian Pickaxe ($?)", 
+"Celestite Pickaxe ($?)", 
+"Frostbite Pickaxe ($?)", 
+"Sunfrost Pickaxe ($?)", 
+"Rosefrost Pickaxe ($?)", 
+"Shadowfrost Pickaxe ($?)"
+}, Callback = function(Value)
+	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
+end})
+
+ShopTab:AddDropdown({Name = "Radars", Options = {
+"Copper Radar ($?)", 
+"Iron Radar ($500)", 
+"Gold Radar ($?)", 
+"Diamond Radar ($?)", 
+"Emerald Radar ($?)", 
+"Sapphire Radar ($?)", 
+"Ruby Radar ($?)", 
+"Amethyst Radar ($?)", 
+"Quartz Radar ($?)", 
+"Citrine Radar ($?)", 
+"Obsidian Radar ($?)", 
+"Celestite Radar ($?)", 
+"Frostbite Radar ($?)", 
+"Sunfrost Radar ($?)", 
+"Rosefrost Radar ($?)", 
+"Shadowfrost Radar ($13,000,000)"
+}, Callback = function(Value)
+	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
+end})
+
+ShopTab:AddDropdown({Name = "Drills", Options = {
+"Weak Drill ($?)", 
+"Light Drill ($?)", 
+"Heavy Drill ($?)"
+}, Callback = function(Value)
+	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
+end})
+
+-- Misc --
 
 OrionLib:Init()

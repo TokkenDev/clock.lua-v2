@@ -55,6 +55,7 @@ local CollectMode = "Legit"
 local oredistance = nil
 local desiredWalkSpeed = 16
 local ownPos = nil
+local MiningDir = "Camera"
 local function findtradertom()
     if not tradertomPos then
         root.CFrame = CFrame.new(Vector3.new(998, 245, -71))
@@ -92,11 +93,15 @@ end)
 local function MineOres()
     while AutoMine do
         local camera = workspace.CurrentCamera.CFrame.LookVector
-        local minePos = Vector3.new(
-            math.round(math.clamp(camera.X * 1000, -1000, 1000)),
-            math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
-            math.round(math.clamp(camera.Z * 1000, -1000, 1000))
-        )
+        if MiningDir == "Camera" then
+            minePos = Vector3.new(
+                math.round(math.clamp(camera.X * 1000, -1000, 1000)),
+                math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
+                math.round(math.clamp(camera.Z * 1000, -1000, 1000))
+            )
+        else
+            minePos = Vector3.new(math.random(-1000,1000), math.random(-1000,1000), math.random(-1000,1000))
+        end
         Mine:FireServer(minePos, MiningStrength)
         task.wait(0.1)
     end
@@ -105,11 +110,15 @@ end
 local function MineOresDrill()
     while AutoDrill do
         local camera = workspace.CurrentCamera.CFrame.LookVector
-        local minePos = Vector3.new(
-            math.round(math.clamp(camera.X * 1000, -1000, 1000)),
-            math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
-            math.round(math.clamp(camera.Z * 1000, -1000, 1000))
-        )
+        if MiningDir == "Camera" then
+            minePos = Vector3.new(
+                math.round(math.clamp(camera.X * 1000, -1000, 1000)),
+                math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
+                math.round(math.clamp(camera.Z * 1000, -1000, 1000))
+            )
+        else
+            minePos = Vector3.new(math.random(-1000,1000), math.random(-1000,1000), math.random(-1000,1000))
+        end
         Drill:FireServer(math.random(0,9e9), {direction = minePos, heat = 0, overheated = false})
         task.wait(0.05)
     end
@@ -285,14 +294,14 @@ MineTab:AddDropdown({
     Name = "Mining Strength", 
     Default = "Max", 
     Options = {"Max", "Good", "Decent", "Bad"}, 
-    Callback = function(val)
-        if val == "Max" then
+    Callback = function(Value)
+        if Value == "Max" then
             MiningStrength = 1
-        elseif val == "Good" then
+        elseif Value == "Good" then
             MiningStrength = 0.8
-        elseif val == "Decent" then
+        elseif Value == "Decent" then
             MiningStrength = 0.7
-        elseif val == "Bad" then
+        elseif Value == "Bad" then
             MiningStrength = 0.6
         end
         if AutoMine then
@@ -301,6 +310,15 @@ MineTab:AddDropdown({
             end
             MiningThread = task.spawn(MineOres)
         end
+    end
+})
+
+MineTab:AddDropdown({
+    Name = "Mining Direction", 
+    Default = "Camera", 
+    Options = {"Camera", "Random"}, 
+    Callback = function(Value)
+        MiningDir = Value
     end
 })
 
@@ -332,12 +350,12 @@ MineTab:AddDropdown({
     Name = "Collect Speed",
     Default = "Slow",
     Options = {"Instant (LAG)", "Fast", "Slow"},
-    Callback = function(val)
-        if val == "Instant (LAG)" then
+    Callback = function(Value)
+        if Value == "Instant (LAG)" then
             CollectSpeed = 0
-        elseif val == "Fast" then
+        elseif Value == "Fast" then
             CollectSpeed = 0.125
-        elseif val == "Slow" then
+        elseif Value == "Slow" then
             CollectSpeed = 0.5
         end
     end
@@ -347,8 +365,8 @@ MineTab:AddDropdown({
     Name = "Collect Mode",
     Default = "Legit",
     Options = {"Always", "Legit"},
-    Callback = function(val)
-        CollectMode = val
+    Callback = function(Value)
+        CollectMode = Value
     end
 })
 
@@ -534,7 +552,7 @@ MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color 
 end})
 
 MiscTab:AddButton({Name = "Remove Fog", Callback = function()
-	Lighting.FogEnd = 100000
+	Lighting.FogEnd = 10000
 	for i,v in pairs(Lighting:GetDescendants()) do
 		if v:IsA("Atmosphere") then
 			v:Destroy()

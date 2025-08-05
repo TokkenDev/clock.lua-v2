@@ -299,7 +299,6 @@ local function navigateToNearestOre()
         end
 
         local humanoid = plr.Character.Humanoid
-        local root = plr.Character.HumanoidRootPart
         local playerPos = root.Position
         local closestItem = findNearestItem()
         local targetPos = nil

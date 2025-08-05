@@ -29,6 +29,7 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
@@ -42,17 +43,20 @@ local items = workspace:FindFirstChild("Items")
 
 -- Variables --
 local AutoMine = false
-local ColOres = false
-local AutoDrill = false
 local MiningStrength = 1
 local MiningThread = nil
-local OresThread = nil
+local AutoDrill = false
 local DrillingThread = nil
+local AutoDynamite = false
 local DynamiteThread = nil
-local PromptButtonHoldBegan = nil
-local tradertomPos = nil
+local ColOres = false
 local CollectSpeed = 0.5
 local CollectMode = "Legit"
+local AutoWalker = false
+local AutoWalkerThread = nil
+local OresThread = nil
+local PromptButtonHoldBegan = nil
+local tradertomPos = nil
 local oredistance = nil
 local desiredWalkSpeed = 16
 local ownPos = nil
@@ -91,34 +95,6 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- Functions --
-local function findNearestItem()
-    if not items or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
-        return nil
-    end
-
-    local playerPos = plr.Character.HumanoidRootPart.Position
-    local closestItem = nil
-    local shortestDistance = math.huge
-
-    for _, item in ipairs(items:GetChildren()) do
-        local itemPos
-        if item:IsA("MeshPart") then
-            itemPos = item.Position
-        elseif item:IsA("Tool") and item:FindFirstChild("Handle") then
-            itemPos = item.Handle.Position
-        end
-
-        if itemPos then
-            local distance = (playerPos - itemPos).Magnitude
-            if distance < shortestDistance then
-                shortestDistance = distance
-                closestItem = item
-            end
-        end
-    end
-
-    return closestItem
-end
 
 local function MineOres()
     while AutoMine do
@@ -136,7 +112,7 @@ local function MineOres()
                 local itemPos
                 if closestItem:IsA("MeshPart") then
                     itemPos = closestItem.Position
-                elseif closestItem:IsA("Tool") then
+                elseif closestItem:IsA("Tool") and closestItem:FindFirstChild("Handle") then
                     itemPos = closestItem.Handle.Position
                 end
                 local direction = (itemPos - playerPos).Unit
@@ -180,7 +156,7 @@ local function MineOresDrill()
                 local itemPos
                 if closestItem:IsA("MeshPart") then
                     itemPos = closestItem.Position
-                elseif closestItem:IsA("Tool") then
+                elseif closestItem:IsA("Tool") and closestItem:FindFirstChild("Handle") then
                     itemPos = closestItem.Handle.Position
                 end
                 local direction = (itemPos - playerPos).Unit
@@ -284,6 +260,92 @@ local function SellInventory()
             Image = "rbxassetid://4483345998",
             Time = 3
         })
+    end
+end
+
+local function findNearestItem()
+    if not items or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
+        return nil
+    end
+
+    local playerPos = plr.Character.HumanoidRootPart.Position
+    local closestItem = nil
+    local shortestDistance = math.huge
+
+    for _, item in ipairs(items:GetChildren()) do
+        local itemPos
+        if item:IsA("MeshPart") then
+            itemPos = item.Position
+        elseif item:IsA("Tool") and item:FindFirstChild("Handle") then
+            itemPos = item.Handle.Position
+        end
+
+        if itemPos then
+            local distance = (playerPos - itemPos).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestItem = item
+            end
+        end
+    end
+
+    return closestItem
+end
+
+local function navigateToNearestOre()
+    while AutoWalker do
+        if not plr.Character or not plr.Character:FindFirstChild("Humanoid") or not plr.Character:FindFirstChild("HumanoidRootPart") then
+            plr.CharacterAdded:Wait()
+            continue
+        end
+
+        local humanoid = plr.Character.Humanoid
+        local playerPos = root.Position
+        local closestItem = findNearestItem()
+        local targetPos = nil
+
+        if closestItem then
+            if closestItem:IsA("MeshPart") then
+                targetPos = closestItem.Position
+            elseif closestItem:IsA("Tool") and closestItem:FindFirstChild("Handle") then
+                targetPos = closestItem.Handle.Position
+            end
+        else
+            local radius = 50
+            local randomAngle = math.random() * 2 * math.pi
+            local randomDistance = math.random(20, radius)
+            targetPos = playerPos + Vector3.new(math.cos(randomAngle) * randomDistance, 0, math.sin(randomAngle) * randomDistance)
+        end
+
+        if targetPos then
+            local path = PathfindingService:CreatePath({
+                AgentRadius = 2,
+                AgentHeight = 5,
+                AgentCanJump = true,
+                Costs = {}
+            })
+
+            local success, errorMessage = pcall(function()
+                path:ComputeAsync(root.Position, targetPos)
+            end)
+
+            if success and path.Status == Enum.PathStatus.Success then
+                for _, waypoint in ipairs(path:GetWaypoints()) do
+                    if not plr.Character or not plr.Character.Humanoid then
+                        break
+                    end
+                    humanoid:MoveTo(waypoint.Position)
+                    local reached = humanoid.MoveToFinished:Wait(2)
+                    if waypoint.Action == Enum.PathWaypointAction.Jump then
+                        humanoid.Jump = true
+                    end
+                end
+            else
+                humanoid:MoveTo(targetPos)
+            end
+        end
+
+        task.wait(0.1)
     end
 end
 
@@ -632,6 +694,30 @@ MiscTab:AddButton({Name = "Remove Fog", Callback = function()
 			v:Destroy()
 		end
 	end
+end})
+
+MiscTab:AddToggle({Name = "Auto Walk (VERY EXPERIMENTAL)",  Default = false,  Callback = function(bool)
+    AutoWalker = bool
+    if AutoWalker then
+        AutoWalkerThread = task.spawn(navigateToNearestOre)
+        OrionLib:MakeNotification({
+            Name = "Auto Walk",
+            Content = "This is very experimental, Enabled.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    else
+        if AutoWalkerThread then
+            task.cancel(AutoWalkerThread)
+            AutoWalkerThread = nil
+            OrionLib:MakeNotification({
+                Name = "Auto Walk",
+                Content = "This is very experimental, Disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        end
+    end
 end})
 
 OrionLib:Init()

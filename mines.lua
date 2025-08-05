@@ -51,7 +51,7 @@ local PromptButtonHoldBegan = nil
 local tradertomPos = nil
 local function findtradertom()
     if not tradertomPos then
-        root.CFrame = forestPos
+        root.CFrame = CFrame.new(Vector3.new(998, 245, -71))
         local attempt = 0
         repeat
             for _, npc in pairs(workspace:GetChildren()) do

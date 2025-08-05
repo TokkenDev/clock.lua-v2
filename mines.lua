@@ -48,6 +48,31 @@ local OresThread = nil
 local DrillingThread = nil
 local DynamiteThread = nil
 local PromptButtonHoldBegan = nil
+local tradertomPos = nil
+local function findtradertom()
+    if not tradertomPos then
+        root.CFrame = forestPos
+        local attempt = 0
+        repeat
+            for _, npc in pairs(workspace:GetChildren()) do
+                if npc:IsA("Model") and npc:GetAttribute("Name") == "Trader Tom" and npc:FindFirstChild("HumanoidRootPart") then
+                    tradertomPos = npc.HumanoidRootPart.CFrame
+                    break
+                end
+            end
+            task.wait(0.1)
+            attempt = attempt + 1
+        until tradertomPos or attempt > 20
+
+        if not tradertomPos then
+            warn("Could not find Trader Tom after", 20, "attempts")
+        end
+    end
+end
+
+pcall(function()
+    findtradertom()
+end)
 
 -- Functions --
 local function MineOres()
@@ -108,16 +133,35 @@ local function CollectOres()
 end
 
 local function SellInventory()
-    local lastPos = root.CFrame
-    for _, npc in pairs(workspace:GetChildren()) do
-        if npc:IsA("Model") and npc:GetAttribute("Name") == "Trader Tom" and npc:FindFirstChild("HumanoidRootPart") then
-            root.CFrame = npc.HumanoidRootPart.CFrame
-            task.wait(0.5)
-            game.ReplicatedStorage.Ml.SellInventory:FireServer()
-            task.wait(0.5)
-            root.CFrame = lastPos
-            break
+    if not tradertomPos then
+        OrionLib:MakeNotification({
+            Name = "Auto Sell Failed",
+            Content = "Could not find trader tom's position, retrying search.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+        findtradertom()
+        if not tradertomPos then
+            return
         end
+    end
+
+    local success, err = pcall(function()
+        local lastPos = root.CFrame
+        root.CFrame = tradertomPos
+        task.wait(0.1)
+        ReplicatedStorage.Ml.SellInventory:FireServer()
+        task.wait(0.2)
+        root.CFrame = lastPos
+    end)
+
+    if not success then
+        OrionLib:MakeNotification({
+            Name = "Auto Sell Failed",
+            Content = err,
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
     end
 end
 

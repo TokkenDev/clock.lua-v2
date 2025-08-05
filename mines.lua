@@ -83,13 +83,16 @@ pcall(function()
     findtradertom()
 end)
 
-RunService.Heartbeat:Connect(function()
-    pcall(function()
-        if plr.Character and plr.Character.Humanoid then
-            plr.Character.Humanoid.WalkSpeed = desiredWalkSpeed
-        end
+if not getgenv().wshb then
+    getgenv().wshb = true
+    RunService.Heartbeat:Connect(function()
+        pcall(function()
+            if plr.Character and plr.Character.Humanoid then
+                plr.Character.Humanoid.WalkSpeed = desiredWalkSpeed
+            end
+        end)
     end)
-end)
+end
 
 -- Functions --
 local function findNearestItem()
@@ -219,7 +222,7 @@ end
 
 local function navigateToNearestOre()
     local humanoid = plr.Character.Humanoid
-    local playerPos = root.Position
+    local playerPos = root.Character.Head.Position
     local closestItem = findNearestItem()
     local targetPos = nil
 
@@ -246,19 +249,8 @@ local function navigateToNearestOre()
             local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
             if not raycastResult or (raycastResult and not raycastResult.Instance:IsA("Terrain")) then
-                local tweenInfo = TweenInfo.new(
-                    0.25,
-                    Enum.EasingStyle.Linear,
-                    Enum.EasingDirection.InOut,
-                    0,
-                    false,
-                    0
-                )
-                local tween = TweenService:Create(
-                    root,
-                    tweenInfo,
-                    {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
-                )
+                local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0)
+                local tween = TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))})
                 tween:Play()
                 tween.Completed:Wait()
             end

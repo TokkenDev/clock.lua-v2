@@ -91,28 +91,26 @@ end)
 -- Functions --
 local function MineOres()
     while AutoMine do
-        local hitPosition = Mouse.Hit.Position
         local camera = workspace.CurrentCamera.CFrame.LookVector
         local minePos = Vector3.new(
-            math.round(math.clamp(camera.X * 10, -10, 10)),
-            math.round(math.clamp(camera.Y * 10, -10, 10)),
-            math.round(math.clamp(camera.Z * 10, -10, 10))
+            math.round(math.clamp(camera.X * 1000, -1000, 1000)),
+            math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
+            math.round(math.clamp(camera.Z * 1000, -1000, 1000))
         )
-        Mine:FireServer(hitPosition, MiningStrength)
+        Mine:FireServer(minePos, MiningStrength)
         task.wait(0.1)
     end
 end
 
 local function MineOresDrill()
     while AutoDrill do
-        local hitPosition = Mouse.Hit.Position
         local camera = workspace.CurrentCamera.CFrame.LookVector
         local minePos = Vector3.new(
-            math.round(math.clamp(camera.X * 10, -10, 10)),
-            math.round(math.clamp(camera.Y * 10, -10, 10)),
-            math.round(math.clamp(camera.Z * 10, -10, 10))
+            math.round(math.clamp(camera.X * 1000, -1000, 1000)),
+            math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
+            math.round(math.clamp(camera.Z * 1000, -1000, 1000))
         )
-        Drill:FireServer(math.random(0,9e9), {direction = hitPosition, heat = 0, overheated = false})
+        Drill:FireServer(math.random(0,9e9), {direction = minePos, heat = 0, overheated = false})
         task.wait(0.05)
     end
 end

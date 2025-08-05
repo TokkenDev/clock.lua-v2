@@ -52,12 +52,9 @@ local DynamiteThread = nil
 local ColOres = false
 local CollectSpeed = 0.5
 local CollectMode = "Legit"
-local AutoWalker = false
-local AutoWalkerThread = nil
 local OresThread = nil
 local PromptButtonHoldBegan = nil
 local tradertomPos = nil
-local oredistance = nil
 local desiredWalkSpeed = 16
 local ownPos = nil
 local MiningDir = "Camera"
@@ -220,41 +217,107 @@ local function UseDynamite()
     end
 end
 
+local function navigateToNearestOre()
+    local humanoid = plr.Character.Humanoid
+    local playerPos = root.Position
+    local closestItem = findNearestItem()
+    local targetPos = nil
+
+    if closestItem then
+        if closestItem:IsA("MeshPart") then
+            targetPos = closestItem.Position
+        elseif closestItem:IsA("Tool") and closestItem:FindFirstChild("Handle") then
+            targetPos = closestItem.Handle.Position
+        end
+    else
+        local radius = 50
+        local randomAngle = math.random() * 2 * math.pi
+        local randomDistance = math.random(20, radius)
+        targetPos = playerPos + Vector3.new(math.cos(randomAngle) * randomDistance, 0, math.sin(randomAngle) * randomDistance)
+    end
+
+    if targetPos then
+        if closestItem then
+            local rayOrigin = playerPos
+            local rayDirection = targetPos - playerPos
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {plr.Character, items}
+            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+            local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+
+            if not raycastResult or (raycastResult and not raycastResult.Instance:IsA("Terrain")) then
+                local tweenInfo = TweenInfo.new(
+                    0.25,
+                    Enum.EasingStyle.Linear,
+                    Enum.EasingDirection.InOut,
+                    0,
+                    false,
+                    0
+                )
+                local tween = TweenService:Create(
+                    root,
+                    tweenInfo,
+                    {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
+                )
+                tween:Play()
+                tween.Completed:Wait()
+            end
+        else
+            local path = PathfindingService:CreatePath({
+                AgentRadius = 7,
+                AgentHeight = 9.5,
+                AgentCanJump = true,
+                Costs = {}
+            })
+
+            local success, errorMessage = pcall(function()
+                path:ComputeAsync(root.Position, targetPos)
+            end)
+
+            if success and path.Status == Enum.PathStatus.Success then
+                for _, waypoint in ipairs(path:GetWaypoints()) do
+                    if not plr.Character or not plr.Character.Humanoid then
+                        break
+                    end
+                    humanoid:MoveTo(waypoint.Position)
+                    local reached = humanoid.MoveToFinished:Wait(2)
+                    if waypoint.Action == Enum.PathWaypointAction.Jump then
+                        humanoid.Jump = true
+                    end
+                end
+            else
+                humanoid:MoveTo(targetPos)
+            end
+        end
+    end
+    task.wait(0.1)
+end
+
 local function CollectOres()
     local miningNetwork = ReplicatedStorage:FindFirstChild("shared/network/MiningNetwork@GlobalMiningEvents")
     local collectItem = miningNetwork and miningNetwork:FindFirstChild("CollectItem")
-    
+
     while ColOres do
-        local items = items:GetChildren()
-        if #items > 0 then
-            for _, item in ipairs(items) do
-                if not ColOres then
-                    break
-                end
-                local success, err = pcall(function()
-                    if root and item:IsA("MeshPart") then
-                        oredistance = (root.Position - item.Position).Magnitude
-                    else
-                        oredistance = (root.Position - item.Handle.Position).Magnitude
+        if CollectMode == "Legit" then
+            navigateToNearestOre()
+        else
+            local items = items:GetChildren()
+            if #items > 0 then
+                for _, item in ipairs(items) do
+                    if not ColOres then
+                        break
                     end
-                    if oredistance then
-                        if CollectMode == "Legit" then
-                            if oredistance <= 20 then
-                                collectItem:FireServer(item.Name)
-                            end
-                        else
-                            collectItem:FireServer(item.Name)
-                        end
+                    local success, err = pcall(function()
+                        collectItem:FireServer(item.Name)
+                    end)
+                    if not success then
+                        warn("Error collecting item:", err)
                     end
-                    oredistance = nil
-                end)
-                if not success then
-                    warn("Error collecting item:", err)
+                    task.wait(CollectSpeed)
                 end
-                task.wait(CollectSpeed)
             end
         end
-        task.wait(CollectSpeed)
+        task.wait()
     end
 end
 
@@ -288,89 +351,6 @@ local function SellInventory()
             Image = "rbxassetid://4483345998",
             Time = 3
         })
-    end
-end
-
-local function navigateToNearestOre()
-    while AutoWalker do
-        if not plr.Character or not plr.Character:FindFirstChild("Humanoid") or not plr.Character:FindFirstChild("HumanoidRootPart") then
-            plr.CharacterAdded:Wait()
-            continue
-        end
-
-        local humanoid = plr.Character.Humanoid
-        local playerPos = root.Position
-        local closestItem = findNearestItem()
-        local targetPos = nil
-
-        if closestItem then
-            if closestItem:IsA("MeshPart") then
-                targetPos = closestItem.Position
-            elseif closestItem:IsA("Tool") and closestItem:FindFirstChild("Handle") then
-                targetPos = closestItem.Handle.Position
-            end
-        else
-            local radius = 50
-            local randomAngle = math.random() * 2 * math.pi
-            local randomDistance = math.random(20, radius)
-            targetPos = playerPos + Vector3.new(math.cos(randomAngle) * randomDistance, 0, math.sin(randomAngle) * randomDistance)
-        end
-
-        if targetPos then
-            if closestItem then
-                local rayOrigin = playerPos
-                local rayDirection = targetPos - playerPos
-                local raycastParams = RaycastParams.new()
-                raycastParams.FilterDescendantsInstances = {plr.Character, items}
-                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-
-                if not raycastResult or (raycastResult and not raycastResult.Instance:IsA("Terrain")) then
-                    local tweenInfo = TweenInfo.new(
-                        0.25,
-                        Enum.EasingStyle.Linear,
-                        Enum.EasingDirection.InOut,
-                        0,
-                        false,
-                        0
-                    )
-                    local tween = TweenService:Create(
-                        root,
-                        tweenInfo,
-                        {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
-                    )
-                    tween:Play()
-                    tween.Completed:Wait()
-                end
-            else
-                local path = PathfindingService:CreatePath({
-                    AgentRadius = 7,
-                    AgentHeight = 9.5,
-                    AgentCanJump = true,
-                    Costs = {}
-                })
-
-                local success, errorMessage = pcall(function()
-                    path:ComputeAsync(root.Position, targetPos)
-                end)
-
-                if success and path.Status == Enum.PathStatus.Success then
-                    for _, waypoint in ipairs(path:GetWaypoints()) do
-                        if not plr.Character or not plr.Character.Humanoid then
-                            break
-                        end
-                        humanoid:MoveTo(waypoint.Position)
-                        local reached = humanoid.MoveToFinished:Wait(2)
-                        if waypoint.Action == Enum.PathWaypointAction.Jump then
-                            humanoid.Jump = true
-                        end
-                    end
-                else
-                    humanoid:MoveTo(targetPos)
-                end
-            end
-        end
-        task.wait(0.1)
     end
 end
 
@@ -719,30 +699,6 @@ MiscTab:AddButton({Name = "Remove Fog", Callback = function()
 			v:Destroy()
 		end
 	end
-end})
-
-MiscTab:AddToggle({Name = "Auto Walk (VERY EXPERIMENTAL)",  Default = false,  Callback = function(bool)
-    AutoWalker = bool
-    if AutoWalker then
-        AutoWalkerThread = task.spawn(navigateToNearestOre)
-        OrionLib:MakeNotification({
-            Name = "Auto Walk",
-            Content = "This is very experimental, Enabled.",
-            Image = "rbxassetid://4483345998",
-            Time = 3
-        })
-    else
-        if AutoWalkerThread then
-            task.cancel(AutoWalkerThread)
-            AutoWalkerThread = nil
-            OrionLib:MakeNotification({
-                Name = "Auto Walk",
-                Content = "This is very experimental, Disabled.",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        end
-    end
 end})
 
 OrionLib:Init()

@@ -49,6 +49,8 @@ local DrillingThread = nil
 local DynamiteThread = nil
 local PromptButtonHoldBegan = nil
 local tradertomPos = nil
+local CollectSpeed = 0.5
+local CollectMode = "Legit"
 local function findtradertom()
     if not tradertomPos then
         root.CFrame = CFrame.new(Vector3.new(998, 245, -71))
@@ -112,6 +114,7 @@ end
 local function CollectOres()
     local miningNetwork = ReplicatedStorage:FindFirstChild("shared/network/MiningNetwork@GlobalMiningEvents")
     local collectItem = miningNetwork and miningNetwork:FindFirstChild("CollectItem")
+    
     while ColOres do
         local items = items:GetChildren()
         if #items > 0 then
@@ -120,15 +123,23 @@ local function CollectOres()
                     break
                 end
                 local success, err = pcall(function()
-                    collectItem:FireServer(item.Name)
+                    if CollectMode == "Legit" then
+                        if root and item:IsA("Tool") then
+                            collectItem:FireServer(item.Name)
+                        end
+                    else
+                        if root and (item:IsA("MeshPart") or item:IsA("Tool")) then
+                            collectItem:FireServer(item.Name)
+                        end
+                    end
                 end)
                 if not success then
                     warn("Error collecting item:", err)
                 end
-                task.wait(0.5)
+                task.wait(CollectSpeed)
             end
         end
-        task.wait(0.5)
+        task.wait(CollectSpeed)
     end
 end
 
@@ -280,7 +291,7 @@ local CollectOresToggle = MineTab:AddToggle({Name = "Collect Ores",  Default = f
         OresThread = task.spawn(CollectOres)
         OrionLib:MakeNotification({
             Name = "Collecting Ores",
-            Content = "Auto Ore Collecting is now active. (Might Cause Slight Lag)",
+            Content = "Auto Ore Collecting is now active. (Might cause lag bcuz game bad lol)",
             Image = "rbxassetid://4483345998",
             Time = 3
         })
@@ -297,6 +308,30 @@ local CollectOresToggle = MineTab:AddToggle({Name = "Collect Ores",  Default = f
         end
     end
 end})
+
+MineTab:AddDropdown({
+    Name = "Collect Speed", 
+    Default = "Slow", 
+    Options = {"Instant (LAG)", "Fast", "Slow"}, 
+    Callback = function(val)
+        if val == "Instant (LAG)" then
+            CollectSpeed = 0
+        elseif val == "Fast" then
+            CollectSpeed = 0.125
+        elseif val == "Slow" then
+            CollectSpeed = 0.5
+        end
+    end
+})
+
+MineTab:AddDropdown({
+    Name = "Collect Mode", 
+    Default = "Legit", 
+    Options = {"Always", "Legit"}, 
+    Callback = function(val)
+        CollectMode = val
+    end
+})
 
 MineTab:AddButton({Name = "Sell Everything", Callback = function()
     SellInventory()

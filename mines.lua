@@ -130,17 +130,19 @@ local function MineOres()
             )
         elseif MiningDir == "Towards Ores" then
             local closestItem = findNearestItem()
-            if closestItem then
+            if closestItem and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                local playerPos = plr.Character.HumanoidRootPart.Position
                 local itemPos
                 if closestItem:IsA("MeshPart") then
                     itemPos = closestItem.Position
                 elseif closestItem:IsA("Tool") then
                     itemPos = closestItem.Handle.Position
                 end
+                local direction = (itemPos - playerPos).Unit
                 minePos = Vector3.new(
-                    math.round(math.clamp(itemPos.X, -1000, 1000)),
-                    math.round(math.clamp(itemPos.Y, -1000, 1000)),
-                    math.round(math.clamp(itemPos.Z, -1000, 1000))
+                    math.round(math.clamp(direction.X * 1000, -1000, 1000)),
+                    math.round(math.clamp(direction.Y * 1000, -1000, 1000)),
+                    math.round(math.clamp(direction.Z * 1000, -1000, 1000))
                 )
             else
                 minePos = Vector3.new(
@@ -172,17 +174,19 @@ local function MineOresDrill()
             )
         elseif MiningDir == "Towards Ores" then
             local closestItem = findNearestItem()
-            if closestItem then
+            if closestItem and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                local playerPos = plr.Character.HumanoidRootPart.Position
                 local itemPos
                 if closestItem:IsA("MeshPart") then
                     itemPos = closestItem.Position
                 elseif closestItem:IsA("Tool") then
                     itemPos = closestItem.Handle.Position
                 end
+                local direction = (itemPos - playerPos).Unit
                 minePos = Vector3.new(
-                    math.round(math.clamp(itemPos.X, -1000, 1000)),
-                    math.round(math.clamp(itemPos.Y, -1000, 1000)),
-                    math.round(math.clamp(itemPos.Z, -1000, 1000))
+                    math.round(math.clamp(direction.X * 1000, -1000, 1000)),
+                    math.round(math.clamp(direction.Y * 1000, -1000, 1000)),
+                    math.round(math.clamp(direction.Z * 1000, -1000, 1000))
                 )
             else
                 minePos = Vector3.new(

@@ -95,6 +95,34 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- Functions --
+local function findNearestItem()
+    if not items or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
+        return nil
+    end
+
+    local playerPos = plr.Character.HumanoidRootPart.Position
+    local closestItem = nil
+    local shortestDistance = math.huge
+
+    for _, item in ipairs(items:GetChildren()) do
+        local itemPos
+        if item:IsA("MeshPart") then
+            itemPos = item.Position
+        elseif item:IsA("Tool") and item:FindFirstChild("Handle") then
+            itemPos = item.Handle.Position
+        end
+
+        if itemPos then
+            local distance = (playerPos - itemPos).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestItem = item
+            end
+        end
+    end
+
+    return closestItem
+end
 
 local function MineOres()
     while AutoMine do
@@ -261,35 +289,6 @@ local function SellInventory()
             Time = 3
         })
     end
-end
-
-local function findNearestItem()
-    if not items or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
-        return nil
-    end
-
-    local playerPos = plr.Character.HumanoidRootPart.Position
-    local closestItem = nil
-    local shortestDistance = math.huge
-
-    for _, item in ipairs(items:GetChildren()) do
-        local itemPos
-        if item:IsA("MeshPart") then
-            itemPos = item.Position
-        elseif item:IsA("Tool") and item:FindFirstChild("Handle") then
-            itemPos = item.Handle.Position
-        end
-
-        if itemPos then
-            local distance = (playerPos - itemPos).Magnitude
-            if distance < shortestDistance then
-                shortestDistance = distance
-                closestItem = item
-            end
-        end
-    end
-
-    return closestItem
 end
 
 local function navigateToNearestOre()

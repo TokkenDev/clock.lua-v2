@@ -28,6 +28,7 @@ local MiscTab = Window:MakeTab({
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local Lighting = game:GetService("Lighting")

@@ -90,6 +90,35 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- Functions --
+local function findNearestItem()
+    if not items or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
+        return nil
+    end
+
+    local playerPos = plr.Character.HumanoidRootPart.Position
+    local closestItem = nil
+    local shortestDistance = math.huge
+
+    for _, item in ipairs(items:GetChildren()) do
+        local itemPos
+        if item:IsA("MeshPart") then
+            itemPos = item.Position
+        elseif item:IsA("Tool") and item:FindFirstChild("Handle") then
+            itemPos = item.Handle.Position
+        end
+
+        if itemPos then
+            local distance = (playerPos - itemPos).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestItem = item
+            end
+        end
+    end
+
+    return closestItem
+end
+
 local function MineOres()
     while AutoMine do
         local camera = workspace.CurrentCamera.CFrame.LookVector
@@ -99,8 +128,33 @@ local function MineOres()
                 math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
                 math.round(math.clamp(camera.Z * 1000, -1000, 1000))
             )
+        elseif MiningDir == "Towards Ores" then
+            local closestItem = findNearestItem()
+            if closestItem then
+                local itemPos
+                if closestItem:IsA("MeshPart") then
+                    itemPos = closestItem.Position
+                elseif closestItem:IsA("Tool") then
+                    itemPos = closestItem.Handle.Position
+                end
+                minePos = Vector3.new(
+                    math.round(math.clamp(itemPos.X, -1000, 1000)),
+                    math.round(math.clamp(itemPos.Y, -1000, 1000)),
+                    math.round(math.clamp(itemPos.Z, -1000, 1000))
+                )
+            else
+                minePos = Vector3.new(
+                    math.round(math.clamp(camera.X * 1000, -1000, 1000)),
+                    math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
+                    math.round(math.clamp(camera.Z * 1000, -1000, 1000))
+                )
+            end
         else
-            minePos = Vector3.new(math.random(-1000,1000), math.random(-1000,1000), math.random(-1000,1000))
+            minePos = Vector3.new(
+                math.random(-1000, 1000),
+                math.random(-1000, 1000),
+                math.random(-1000, 1000)
+            )
         end
         Mine:FireServer(minePos, MiningStrength)
         task.wait(0.1)
@@ -116,8 +170,33 @@ local function MineOresDrill()
                 math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
                 math.round(math.clamp(camera.Z * 1000, -1000, 1000))
             )
+        elseif MiningDir == "Towards Ores" then
+            local closestItem = findNearestItem()
+            if closestItem then
+                local itemPos
+                if closestItem:IsA("MeshPart") then
+                    itemPos = closestItem.Position
+                elseif closestItem:IsA("Tool") then
+                    itemPos = closestItem.Handle.Position
+                end
+                minePos = Vector3.new(
+                    math.round(math.clamp(itemPos.X, -1000, 1000)),
+                    math.round(math.clamp(itemPos.Y, -1000, 1000)),
+                    math.round(math.clamp(itemPos.Z, -1000, 1000))
+                )
+            else
+                minePos = Vector3.new(
+                    math.round(math.clamp(camera.X * 1000, -1000, 1000)),
+                    math.round(math.clamp(camera.Y * 1000, -1000, 1000)),
+                    math.round(math.clamp(camera.Z * 1000, -1000, 1000))
+                )
+            end
         else
-            minePos = Vector3.new(math.random(-1000,1000), math.random(-1000,1000), math.random(-1000,1000))
+            minePos = Vector3.new(
+                math.random(-1000, 1000),
+                math.random(-1000, 1000),
+                math.random(-1000, 1000)
+            )
         end
         Drill:FireServer(math.random(0,9e9), {direction = minePos, heat = 0, overheated = false})
         task.wait(0.05)
@@ -316,7 +395,7 @@ MineTab:AddDropdown({
 MineTab:AddDropdown({
     Name = "Mining Direction", 
     Default = "Camera", 
-    Options = {"Camera", "Random"}, 
+    Options = {"Camera", "Random", "Towards Ores"}, 
     Callback = function(Value)
         MiningDir = Value
     end

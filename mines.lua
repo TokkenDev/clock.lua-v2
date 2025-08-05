@@ -328,8 +328,8 @@ local function navigateToNearestOre()
                 root.CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))
             else
                 local path = PathfindingService:CreatePath({
-                    AgentRadius = 2,
-                    AgentHeight = 5,
+                    AgentRadius = 7,
+                    AgentHeight = 9.5,
                     AgentCanJump = true,
                     Costs = {}
                 })

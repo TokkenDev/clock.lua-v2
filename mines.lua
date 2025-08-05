@@ -27,6 +27,7 @@ local MiscTab = Window:MakeTab({
 -- Init --
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
@@ -51,6 +52,8 @@ local PromptButtonHoldBegan = nil
 local tradertomPos = nil
 local CollectSpeed = 0.5
 local CollectMode = "Legit"
+local oredistance = nil
+local desiredWalkSpeed = 16
 local function findtradertom()
     if not tradertomPos then
         root.CFrame = CFrame.new(Vector3.new(998, 245, -71))
@@ -74,6 +77,14 @@ end
 
 pcall(function()
     findtradertom()
+end)
+
+RunService.Heartbeat:Connect(function()
+    pcall(function()
+        if plr.Character and plr.Character.Humanoid then
+            plr.Character.Humanoid.WalkSpeed = desiredWalkSpeed
+        end
+    end)
 end)
 
 -- Functions --
@@ -123,15 +134,21 @@ local function CollectOres()
                     break
                 end
                 local success, err = pcall(function()
-                    if CollectMode == "Legit" then
-                        if root and item:IsA("Tool") then
-                            collectItem:FireServer(item.Name)
-                        end
+                    if root and item:IsA("MeshPart") then
+                        oredistance = (rootPart.Position - item.Position).Magnitude
                     else
-                        if root and (item:IsA("MeshPart") or item:IsA("Tool")) then
+                        oredistance = (rootPart.Position - item.Handle.Position).Magnitude
+                    end
+                    if oredistance then
+                        if CollectMode = "Legit" then
+                            if oredistance <= 5 then
+                                collectItem:FireServer(item.Name)
+                            end
+                        else
                             collectItem:FireServer(item.Name)
                         end
                     end
+                    oredistance = nil
                 end)
                 if not success then
                     warn("Error collecting item:", err)
@@ -475,7 +492,7 @@ end})
 
 MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, ValueName = "ws", Callback = function(Value)
     pcall(function()
-        plr.Character.Humanoid.WalkSpeed = Value
+        desiredWalkSpeed = Value
     end)
 end})
 

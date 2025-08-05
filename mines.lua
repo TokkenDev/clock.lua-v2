@@ -317,55 +317,55 @@ local function navigateToNearestOre()
         end
 
         if targetPos then
-            local path = PathfindingService:CreatePath({
-                AgentRadius = 7,
-                AgentHeight = 9.5,
-                AgentCanJump = true,
-                Costs = {}
-            })
+            local shouldTween = false
+            if closestItem then
+                local rayOrigin = playerPos
+                local rayDirection = targetPos - playerPos
+                local raycastParams = RaycastParams.new()
+                raycastParams.FilterDescendantsInstances = {plr.Character, items}
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+                shouldTween = not raycastResult
+            end
 
-            local success, errorMessage = pcall(function()
-                path:ComputeAsync(root.Position, targetPos)
-            end)
-
-            if success and path.Status == Enum.PathStatus.Success then
-                for _, waypoint in ipairs(path:GetWaypoints()) do
-                    if not plr.Character or not plr.Character.Humanoid then
-                        break
-                    end
-                    humanoid:MoveTo(waypoint.Position)
-                    local reached = humanoid.MoveToFinished:Wait(2)
-                    if waypoint.Action == Enum.PathWaypointAction.Jump then
-                        humanoid.Jump = true
-                    end
-                end
+            if shouldTween then
+                local tweenInfo = TweenInfo.new(
+                    0.25,
+                    Enum.EasingStyle.Linear,
+                    Enum.EasingDirection.InOut,
+                    0,
+                    false,
+                    0
+                )
+                local tween = TweenService:Create(
+                    root,
+                    tweenInfo,
+                    {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
+                )
+                tween:Play()
+                tween.Completed:Wait()
             else
-                if closestItem then
-                    local rayOrigin = playerPos
-                    local rayDirection = targetPos - playerPos
-                    local raycastParams = RaycastParams.new()
-                    raycastParams.FilterDescendantsInstances = {plr.Character, items}
-                    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                    local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+                local path = PathfindingService:CreatePath({
+                    AgentRadius = 7,
+                    AgentHeight = 9.5,
+                    AgentCanJump = true,
+                    Costs = {}
+                })
 
-                    if not raycastResult then
-                        local tweenInfo = TweenInfo.new(
-                            1,
-                            Enum.EasingStyle.Linear,
-                            Enum.EasingDirection.InOut,
-                            0,
-                            false,
-                            0
-                        )
-                        local tween = TweenService:Create(
-                            root,
-                            tweenInfo,
-                            {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
-                        )
-                        tween:Play()
-                        tween.Completed:Wait()
-                    else
-                        humanoid:MoveTo(targetPos)
+                local success, errorMessage = pcall(function()
+                    path:ComputeAsync(root.Position, targetPos)
+                end)
+
+                if success and path.Status == Enum.PathStatus.Success then
+                    for _, waypoint in ipairs(path:GetWaypoints()) do
+                        if not plr.Character or not plr.Character.Humanoid then
+                            break
+                        end
+                        humanoid:MoveTo(waypoint.Position)
+                        local reached = humanoid.MoveToFinished:Wait(2)
+                        if waypoint.Action == Enum.PathWaypointAction.Jump then
+                            humanoid.Jump = true
+                        end
                     end
                 else
                     humanoid:MoveTo(targetPos)

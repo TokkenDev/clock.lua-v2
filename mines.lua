@@ -135,9 +135,9 @@ local function CollectOres()
                 end
                 local success, err = pcall(function()
                     if root and item:IsA("MeshPart") then
-                        oredistance = (rootPart.Position - item.Position).Magnitude
+                        oredistance = (root.Position - item.Position).Magnitude
                     else
-                        oredistance = (rootPart.Position - item.Handle.Position).Magnitude
+                        oredistance = (root.Position - item.Handle.Position).Magnitude
                     end
                     if oredistance then
                         if CollectMode == "Legit" then

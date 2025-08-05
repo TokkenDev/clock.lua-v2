@@ -62,7 +62,7 @@ local function findtradertom()
         repeat
             for _, npc in pairs(workspace:GetChildren()) do
                 if npc:IsA("Model") and npc:GetAttribute("Name") == "Trader Tom" and npc:FindFirstChild("HumanoidRootPart") then
-                    tradertomPos = npc.HumanoidRootPart.CFrame
+                    tradertomPos = npc.HumanoidRootPart.Position
                     break
                 end
             end
@@ -177,7 +177,7 @@ local function SellInventory()
     end
 
     local success, err = pcall(function()
-        local lastPos = root.CFrame
+        local lastPos = root.Position
         local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
         TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(tradertomPos)}):Play()
         task.wait(0.5)

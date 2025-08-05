@@ -269,12 +269,11 @@ local function SellInventory()
 
     local success, err = pcall(function()
         local lastPos = root.Position
-        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-        TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(tradertomPos)}):Play()
+        root.CFrame = CFrame.new(tradertomPos)
         task.wait(0.5)
         ReplicatedStorage.Ml.SellInventory:FireServer()
         task.wait(0.5)
-        TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(lastPos)}):Play()
+        root.CFrame = CFrame.new(lastPos)
     end)
 
     if not success then
@@ -471,50 +470,42 @@ TeleportTab:AddLabel("Teleports")
 
 TeleportTab:AddButton({Name = "Forest", Callback = function()
     local targetPos = Vector3.new(998, 245, -71)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Mine Passage", Callback = function()
     local targetPos = Vector3.new(1020, 181, -1451)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Crystal Cave", Callback = function()
     local targetPos = Vector3.new(1011, 177, -2910)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Merchant Mike (Ores)", Callback = function()
     local targetPos = Vector3.new(1043, 245, -198)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Driller Dan (Drills)", Callback = function()
     local targetPos = Vector3.new(906, 245, -454)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Sally (Pickaxes)", Callback = function()
     local targetPos = Vector3.new(1054, 245, -283)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Bob (Radars)", Callback = function()
     local targetPos = Vector3.new(1085, 245, -468)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
     local targetPos = Vector3.new(954, 245, -222)
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+    root.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddLabel("Custom Teleports")
@@ -531,8 +522,7 @@ end})
 
 TeleportTab:AddButton({Name = "Teleport to your own position", Callback = function()
     if ownPos then
-        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-        TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(ownPos)}):Play()
+        root.CFrame = CFrame.new(ownPos)
     else
         OrionLib:MakeNotification({
             Name = "Teleport Failed!",

@@ -358,7 +358,7 @@ MineTab:AddButton({Name = "Sell Everything", Callback = function()
 end})
 
 -- Teleport --
-MiscTab:AddLabel("Teleports")
+TeleportTab:AddLabel("Teleports")
 
 TeleportTab:AddButton({Name = "Forest", Callback = function()
     local targetPos = Vector3.new(998, 245, -71)
@@ -408,7 +408,7 @@ TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
     TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
 end})
 
-MiscTab:AddLabel("Custom Teleports")
+TeleportTab:AddLabel("Custom Teleports")
 
 TeleportTab:AddButton({Name = "Set your own position", Callback = function()
     ownPos = root.Position
@@ -476,8 +476,7 @@ end})
 ShopTab:AddDropdown({Name = "Drills", Options = {
 "Weak Drill ($25,000)",
 "Light Drill ($50,000)",
-"Heavy Drill ($250,000)",
-"Ruby Drill ($0)"
+"Heavy Drill ($250,000)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})

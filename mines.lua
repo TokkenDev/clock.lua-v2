@@ -140,7 +140,7 @@ local function CollectOres()
                         oredistance = (rootPart.Position - item.Handle.Position).Magnitude
                     end
                     if oredistance then
-                        if CollectMode = "Legit" then
+                        if CollectMode == "Legit" then
                             if oredistance <= 5 then
                                 collectItem:FireServer(item.Name)
                             end

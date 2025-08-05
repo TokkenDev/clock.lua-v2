@@ -141,7 +141,6 @@ local function CollectOres()
                         oredistance = (root.Position - item.Handle.Position).Magnitude
                     end
                     if oredistance then
-                        print(oredistance)
                         if CollectMode == "Legit" then
                             if oredistance <= 20 then
                                 collectItem:FireServer(item.Name)
@@ -357,6 +356,13 @@ MineTab:AddButton({Name = "Sell Everything", Callback = function()
     SellInventory()
 end})
 
+MineTab:AddButton({Name = "Equip Best Items (USE SCRIPT'S MINING)", Callback = function()
+    local EquipItem = ReplicatedStorage.Ml.EquipItem
+    EquipItem:FireServer("Shadowfrost Pickaxe")
+    EquipItem:FireServer("Ruby Drill")
+    EquipItem:FireServer("Toxic Dynamite")
+end})
+
 -- Teleport --
 TeleportTab:AddLabel("Teleports")
 
@@ -412,6 +418,12 @@ TeleportTab:AddLabel("Custom Teleports")
 
 TeleportTab:AddButton({Name = "Set your own position", Callback = function()
     ownPos = root.Position
+    OrionLib:MakeNotification({
+        Name = "Teleport Set!",
+        Content = "Successfully set teleport position.",
+        Image = "rbxassetid://4483345998",
+        Time = 3
+    })
 end})
 
 TeleportTab:AddButton({Name = "Teleport to your own position", Callback = function()
@@ -420,8 +432,8 @@ TeleportTab:AddButton({Name = "Teleport to your own position", Callback = functi
         TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(ownPos)}):Play()
     else
         OrionLib:MakeNotification({
-            Name = "Teleport Failed",
-            Content = "Please set your position first",
+            Name = "Teleport Failed!",
+            Content = "Please set your position first.",
             Image = "rbxassetid://4483345998",
             Time = 3
         })

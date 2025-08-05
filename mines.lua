@@ -55,7 +55,7 @@ local CollectMode = "Legit"
 local OresThread = nil
 local PromptButtonHoldBegan = nil
 local tradertomPos = nil
-local desiredWalkSpeed = 16
+getgenv().desiredWalkSpeed = 16
 local ownPos = nil
 local MiningDir = "Camera"
 local function findtradertom()
@@ -88,7 +88,7 @@ if not getgenv().wshb then
     RunService.Heartbeat:Connect(function()
         pcall(function()
             if plr.Character and plr.Character.Humanoid then
-                plr.Character.Humanoid.WalkSpeed = desiredWalkSpeed
+                plr.Character.Humanoid.WalkSpeed = getgenv().desiredWalkSpeed
             end
         end)
     end)
@@ -680,7 +680,7 @@ end})
 
 MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, Callback = function(Value)
     pcall(function()
-        desiredWalkSpeed = Value
+        getgenv().desiredWalkSpeed = Value
     end)
 end})
 

@@ -358,7 +358,7 @@ end})
 
 MineTab:AddButton({Name = "Equip Best Items (USE SCRIPT'S MINING)", Callback = function()
     local EquipItem = ReplicatedStorage.Ml.EquipItem
-    EquipItem:FireServer("Shadowfrost Pickaxe")
+    EquipItem:FireServer("Dragon Pickaxe")
     task.wait(2)
     EquipItem:FireServer("Ruby Drill")
     task.wait(2)

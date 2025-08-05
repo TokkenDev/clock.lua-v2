@@ -54,6 +54,7 @@ local CollectSpeed = 0.5
 local CollectMode = "Legit"
 local oredistance = nil
 local desiredWalkSpeed = 16
+local ownPos = nil
 local function findtradertom()
     if not tradertomPos then
         root.CFrame = CFrame.new(Vector3.new(998, 245, -71))
@@ -140,8 +141,9 @@ local function CollectOres()
                         oredistance = (root.Position - item.Handle.Position).Magnitude
                     end
                     if oredistance then
+                        print(oredistance)
                         if CollectMode == "Legit" then
-                            if oredistance <= 5 then
+                            if oredistance <= 20 then
                                 collectItem:FireServer(item.Name)
                             end
                         else
@@ -176,11 +178,12 @@ local function SellInventory()
 
     local success, err = pcall(function()
         local lastPos = root.CFrame
-        root.CFrame = tradertomPos
-        task.wait(0.1)
+        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+        TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(tradertomPos)}):Play()
+        task.wait(0.5)
         ReplicatedStorage.Ml.SellInventory:FireServer()
-        task.wait(0.2)
-        root.CFrame = lastPos
+        task.wait(0.5)
+        TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(lastPos)}):Play()
     end)
 
     if not success then
@@ -196,7 +199,7 @@ end
 -- Tab Elements --
 
 -- Mining --
-local AutoMineToggle = MineTab:AddToggle({Name = "Auto Mine",  Default = false,  Callback = function(bool)
+AutoMineToggle = MineTab:AddToggle({Name = "Auto Mine",  Default = false,  Callback = function(bool)
     AutoMine = bool
     if AutoMine then
         if MiningStrength then
@@ -231,7 +234,7 @@ local AutoMineToggle = MineTab:AddToggle({Name = "Auto Mine",  Default = false, 
     end
 end})
 
-local AutoDrillToggle = MineTab:AddToggle({Name = "Auto Drill (REQUIRES ANY DRILL)",  Default = false,  Callback = function(bool)
+MineTab:AddToggle({Name = "Auto Drill (REQUIRES ANY DRILL)",  Default = false,  Callback = function(bool)
     AutoDrill = bool
     if AutoDrill then
         DrillingThread = task.spawn(MineOresDrill)
@@ -255,7 +258,7 @@ local AutoDrillToggle = MineTab:AddToggle({Name = "Auto Drill (REQUIRES ANY DRIL
     end
 end})
 
-local AutoDynamiteToggle = MineTab:AddToggle({Name = "Auto Dynamite (REQUIRES ANY DYNAMITE)",  Default = false,  Callback = function(bool)
+MineTab:AddToggle({Name = "Auto Dynamite (REQUIRES ANY DYNAMITE)",  Default = false,  Callback = function(bool)
     AutoDynamite = bool
     if AutoDynamite then
         DynamiteThread = task.spawn(UseDynamite)
@@ -302,7 +305,7 @@ MineTab:AddDropdown({
     end
 })
 
-local CollectOresToggle = MineTab:AddToggle({Name = "Collect Ores",  Default = false,  Callback = function(bool)
+MineTab:AddToggle({Name = "Collect Ores",  Default = false,  Callback = function(bool)
     ColOres = bool
     if ColOres then
         OresThread = task.spawn(CollectOres)
@@ -355,6 +358,8 @@ MineTab:AddButton({Name = "Sell Everything", Callback = function()
 end})
 
 -- Teleport --
+MiscTab:AddLabel("Teleports")
+
 TeleportTab:AddButton({Name = "Forest", Callback = function()
     local targetPos = Vector3.new(998, 245, -71)
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
@@ -401,6 +406,26 @@ TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
     local targetPos = Vector3.new(954, 245, -222)
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
     TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos)}):Play()
+end})
+
+MiscTab:AddLabel("Custom Teleports")
+
+TeleportTab:AddButton({Name = "Set your own position", Callback = function()
+    ownPos = root.Position
+end})
+
+TeleportTab:AddButton({Name = "Teleport to your own position", Callback = function()
+    if ownPos then
+        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+        TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(ownPos)}):Play()
+    else
+        OrionLib:MakeNotification({
+            Name = "Teleport Failed",
+            Content = "Please set your position first",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    end
 end})
 
 -- Shop --
@@ -470,7 +495,7 @@ MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callbac
     if bool then
         if fireproximityprompt then
             execCmd("uninstantproximityprompts")
-            wait(0.1)
+            task.wait(0.1)
             PromptButtonHoldBegan = ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
                 fireproximityprompt(prompt)
             end)

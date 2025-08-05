@@ -222,7 +222,8 @@ end
 
 local function navigateToNearestOre()
     local humanoid = plr.Character.Humanoid
-    local playerPos = root.Character.Head.Position
+    local playerPos = root.Position
+    local plrHeadPos = plr.Character.Head.Position
     local closestItem = findNearestItem()
     local targetPos = nil
 
@@ -241,8 +242,8 @@ local function navigateToNearestOre()
 
     if targetPos then
         if closestItem then
-            local rayOrigin = playerPos
-            local rayDirection = targetPos - playerPos
+            local rayOrigin = plrHeadPos
+            local rayDirection = targetPos - plrHeadPos
             local raycastParams = RaycastParams.new()
             raycastParams.FilterDescendantsInstances = {plr.Character, items}
             raycastParams.FilterType = Enum.RaycastFilterType.Blacklist

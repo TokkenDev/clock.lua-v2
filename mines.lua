@@ -508,8 +508,6 @@ MiscTab:AddLabel("Made with <3 by tokkendev")
 MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callback = function(bool)
     if bool then
         if fireproximityprompt then
-            execCmd("uninstantproximityprompts")
-            task.wait(0.1)
             PromptButtonHoldBegan = ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
                 fireproximityprompt(prompt)
             end)
@@ -529,7 +527,7 @@ MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callbac
     end
 end})
 
-MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, ValueName = "ws", Callback = function(Value)
+MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, Callback = function(Value)
     pcall(function()
         desiredWalkSpeed = Value
     end)

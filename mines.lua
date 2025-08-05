@@ -330,9 +330,9 @@ MineTab:AddToggle({Name = "Collect Ores",  Default = false,  Callback = function
 end})
 
 MineTab:AddDropdown({
-    Name = "Collect Speed", 
-    Default = "Slow", 
-    Options = {"Instant (LAG)", "Fast", "Slow"}, 
+    Name = "Collect Speed",
+    Default = "Slow",
+    Options = {"Instant (LAG)", "Fast", "Slow"},
     Callback = function(val)
         if val == "Instant (LAG)" then
             CollectSpeed = 0
@@ -345,9 +345,9 @@ MineTab:AddDropdown({
 })
 
 MineTab:AddDropdown({
-    Name = "Collect Mode", 
-    Default = "Legit", 
-    Options = {"Always", "Legit"}, 
+    Name = "Collect Mode",
+    Default = "Legit",
+    Options = {"Always", "Legit"},
     Callback = function(val)
         CollectMode = val
     end
@@ -433,50 +433,51 @@ ShopTab:AddParagraph("WARNING","If you try to buy something you already own here
 
 ShopTab:AddDropdown({Name = "Pickaxes", Options = {
 "Rusty Pickaxe ($5)",
-"Wooden Pickaxe ($250)", 
-"Stone Pickaxe ($1,350)", 
-"Iron Pickaxe ($5,000)", 
-"Emerald Pickaxe ($20,000)", 
-"Sapphire Pickaxe ($40,000)", 
-"Ruby Pickaxe ($100,000)", 
-"Amethyst Pickaxe ($100,000)", 
-"Quartz Pickaxe ($500,000)", 
-"Citrine Pickaxe ($1,000,000)", 
-"Obsidian Pickaxe ($2,500,000)", 
-"Celestite Pickaxe ($5,000,000)", 
-"Frostbite Pickaxe ($6,000,000)", 
-"Sunfrost Pickaxe ($7,500,000)", 
-"Rosefrost Pickaxe ($9,000,000)", 
+"Wooden Pickaxe ($250)",
+"Stone Pickaxe ($1,350)",
+"Iron Pickaxe ($5,000)",
+"Emerald Pickaxe ($20,000)",
+"Sapphire Pickaxe ($40,000)",
+"Ruby Pickaxe ($100,000)",
+"Amethyst Pickaxe ($100,000)",
+"Quartz Pickaxe ($500,000)",
+"Citrine Pickaxe ($1,000,000)",
+"Obsidian Pickaxe ($2,500,000)",
+"Celestite Pickaxe ($5,000,000)",
+"Frostbite Pickaxe ($6,000,000)",
+"Sunfrost Pickaxe ($7,500,000)",
+"Rosefrost Pickaxe ($9,000,000)",
 "Shadowfrost Pickaxe ($12,500,000)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})
 
 ShopTab:AddDropdown({Name = "Radars", Options = {
-"Copper Radar ($50)", 
-"Iron Radar ($500)", 
-"Gold Radar ($1,500)", 
-"Diamond Radar ($4,000)", 
-"Emerald Radar ($20,000)", 
-"Sapphire Radar ($40,000)", 
-"Ruby Radar ($70,000)", 
-"Amethyst Radar ($100,000)", 
-"Quartz Radar ($1,500,000)", 
-"Citrine Radar ($3,500,000)", 
-"Obsidian Radar ($5,000,000)", 
-"Celestite Radar ($7,000,000)", 
-"Frostbite Radar ($7,000,000)", 
-"Sunfrost Radar ($8,500,000)", 
-"Rosefrost Radar ($10,000,000)", 
+"Copper Radar ($50)",
+"Iron Radar ($500)",
+"Gold Radar ($1,500)",
+"Diamond Radar ($4,000)",
+"Emerald Radar ($20,000)",
+"Sapphire Radar ($40,000)",
+"Ruby Radar ($70,000)",
+"Amethyst Radar ($100,000)",
+"Quartz Radar ($1,500,000)",
+"Citrine Radar ($3,500,000)",
+"Obsidian Radar ($5,000,000)",
+"Celestite Radar ($7,000,000)",
+"Frostbite Radar ($7,000,000)",
+"Sunfrost Radar ($8,500,000)",
+"Rosefrost Radar ($10,000,000)",
 "Shadowfrost Radar ($13,000,000)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})
 
 ShopTab:AddDropdown({Name = "Drills", Options = {
-"Weak Drill ($25,000)", 
-"Light Drill ($50,000)", 
-"Heavy Drill ($250,000)"
+"Weak Drill ($25,000)",
+"Light Drill ($50,000)",
+"Heavy Drill ($250,000)",
+"Ruby Drill ($0)"
 }, Callback = function(Value)
 	BuyItem:FireServer(string.gsub(Value, "%s%(%$[%d,]+%)", ""))
 end})

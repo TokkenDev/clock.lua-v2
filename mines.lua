@@ -299,6 +299,7 @@ local function navigateToNearestOre()
         end
 
         local humanoid = plr.Character.Humanoid
+        local root = plr.Character.HumanoidRootPart
         local playerPos = root.Position
         local closestItem = findNearestItem()
         local targetPos = nil
@@ -317,7 +318,6 @@ local function navigateToNearestOre()
         end
 
         if targetPos then
-            local shouldTween = false
             if closestItem then
                 local rayOrigin = playerPos
                 local rayDirection = targetPos - playerPos
@@ -325,25 +325,24 @@ local function navigateToNearestOre()
                 raycastParams.FilterDescendantsInstances = {plr.Character, items}
                 raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
                 local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-                shouldTween = not raycastResult
-            end
 
-            if shouldTween then
-                local tweenInfo = TweenInfo.new(
-                    0.25,
-                    Enum.EasingStyle.Linear,
-                    Enum.EasingDirection.InOut,
-                    0,
-                    false,
-                    0
-                )
-                local tween = TweenService:Create(
-                    root,
-                    tweenInfo,
-                    {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
-                )
-                tween:Play()
-                tween.Completed:Wait()
+                if not raycastResult or (raycastResult and not raycastResult.Instance:IsA("Terrain")) then
+                    local tweenInfo = TweenInfo.new(
+                        0.25,
+                        Enum.EasingStyle.Linear,
+                        Enum.EasingDirection.InOut,
+                        0,
+                        false,
+                        0
+                    )
+                    local tween = TweenService:Create(
+                        root,
+                        tweenInfo,
+                        {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))}
+                    )
+                    tween:Play()
+                    tween.Completed:Wait()
+                end
             else
                 local path = PathfindingService:CreatePath({
                     AgentRadius = 7,
@@ -372,7 +371,6 @@ local function navigateToNearestOre()
                 end
             end
         end
-
         task.wait(0.1)
     end
 end

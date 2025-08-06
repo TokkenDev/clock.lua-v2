@@ -249,7 +249,7 @@ local function navigateToNearestOre()
             raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
             local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
-            if not raycastResult or (raycastResult and not raycastResult.Instance:IsA("Terrain")) then
+            if not raycastResult then
                 local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0)
                 local tween = TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))})
                 tween:Play()

@@ -25,7 +25,6 @@ local MiscTab = Window:MakeTab({
 })
 
 -- Init --
-local selectedlanguage = getgenv().selectedLanguage
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")

@@ -2,7 +2,7 @@
 
 -- Library --
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/source'))()
-local Window = OrionLib:MakeWindow({Name = "clock.lua - Mines", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.mines"})
+local Window = OrionLib:MakeWindow({Name = "clock.lua - Mines - Test", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.mines"})
 local MineTab = Window:MakeTab({
     Name = "Mining",
     Icon = "rbxassetid://4483345998",
@@ -25,7 +25,6 @@ local MiscTab = Window:MakeTab({
 })
 
 -- Init --
-local selectedlanguage = getgenv().selectedLanguage
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")

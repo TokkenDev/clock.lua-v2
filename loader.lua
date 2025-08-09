@@ -64,4 +64,14 @@ GamesTab:AddButton({Name = "⛏️ Mines", Callback = function()
     TeleportService:Teleport(112279762578792, Player)
 end})
 
+GamesTab:AddButton({Name = "🎤 Steal a K-Pop Demon Hunter (Soon)", Callback = function()
+    OrionLib:MakeNotification({
+        Name = "hey",
+        Content = "coming soon schnawg ✌️",
+        Image = "rbxassetid://4483345998",
+        Time = 6
+    })
+    --TeleportService:Teleport(133781619558477, Player)
+end})
+
 OrionLib:Init()

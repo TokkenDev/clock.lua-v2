@@ -3,4 +3,6 @@ simple roblox game scripts
 
 112279762578792 - ⛏️ Mines
 
-133781619558477 - 🎤 Steal a K-Pop Demon Hunter
+133781619558477 - 🎤 Steal a K-Pop Demon Hunter (Soon)
+
+103889808775700 - [🌱] Cut Grass (Soon)

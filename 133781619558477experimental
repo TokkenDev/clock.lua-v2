@@ -1,4 +1,4 @@
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/loader.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/133781619558477.lua"))()
 
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/source'))()
 local Window = OrionLib:MakeWindow({Name = "clock.lua - SaKPDH - Test", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.loader"})
@@ -30,12 +30,19 @@ local LPlayer = Players.LocalPlayer
 local Char = LPlayer.Character
 local HRP = Char.HumanoidRootPart
 
+LPlayer.CharacterAdded:Connect(function(char)
+    Char = LPlayer.Character
+    HRP = Char.HumanoidRootPart
+end)
+
 -- Variables --
 getgenv().desiredWalkSpeed = 30
 local SellAfter = true
-local LockBool = false
+local LockBool = true
 local LockThread = nil
 local NoClipRunning = nil
+local anyStealRunning = false
+local SpecificKPDH = "Rainbow Derpy Tiger"
 
 if not getgenv().wshb then
     getgenv().wshb = true
@@ -50,6 +57,7 @@ end
 
 -- Functions --
 local function getBase(playername)
+    local result
     local isplayerhere = false
     for _, player in ipairs(Players:GetChildren()) do
         if player.Name == playername then
@@ -60,15 +68,18 @@ local function getBase(playername)
         for _, base in ipairs(bases:GetChildren()) do
             local signtext = base.Important.Sign.SignPart.SurfaceGui.TextLabel.Text
             if string.find(signtext, playername, 1, true) then
-                return base.Name
+                result = base.Name
+                break
             end
         end
     end
+    task.wait()
+    return result
 end
 
 local function getAllShits(basenumber)
     local shitstable = {}
-    for _, chars in ipairs(workspace.Map.Bases[basenumber].Important.NPCPads:GetChildren()) do
+    for _, chars in pairs(workspace.Map.Bases[basenumber].Important.NPCPads:GetChildren()) do
         if chars:FindFirstChild("Character") then
             local charname = chars.Character.Head.OverHeadAttachment.CharacterInfo.Frame.UnitName.Text
             local pricetag = chars.Character.Head.OverHeadAttachment.CharacterInfo.Frame.Price.Text
@@ -80,10 +91,11 @@ end
 
 local function stealSearchShit(shitsname)
     local ownbase = getBase(LPlayer.Name)
-    for _, players in ipairs(Players:GetChildren()) do
+    local stolecount = 0
+    for _, players in pairs(Players:GetChildren()) do
         if players.Name ~= LPlayer.Name then
             local currenttarget = getBase(players.Name)
-            for _, shits in ipairs(getAllShits(currenttarget)) do
+            for _, shits in pairs(getAllShits(currenttarget)) do
                 if shits.name == shitsname then
                     local shitcollect = shits.object.Collect
                     repeat
@@ -91,6 +103,7 @@ local function stealSearchShit(shitsname)
                         task.wait()
                         if shits.object:FindFirstChild("Character") and Players:FindFirstChild(players.Name) then
                             fireproximityprompt(shits.object.Character.HumanoidRootPart.SlotPrompt)
+                            stolecount = stolecount + 1
                         else
                             continue
                         end
@@ -100,6 +113,11 @@ local function stealSearchShit(shitsname)
                 end
             end
         end
+    end
+    if stolecount > 0 then
+        return true
+    else
+        return false
     end
 end
 
@@ -130,7 +148,7 @@ local function stealAllShits(playername)
 end
 
 local function sellAllPlayerShits()
-    for _, shits in ipairs(getAllShits(getBase(LPlayer.Name))) do
+    for _, shits in pairs(getAllShits(getBase(LPlayer.Name))) do
         local shitcollect = shits.object.Collect
         repeat
             task.wait()
@@ -146,7 +164,7 @@ local function sellAllPlayerShits()
 end
 
 local function lockBase()
-    while LockBool do
+    while LockBool do task.wait()
         local playerbase = workspace.Map.Bases[getBase(LPlayer.Name)]
         local lockbutton = playerbase.Important.LockButton
         if playerbase.Important.LockButton.BillboardAttachment.LockGui.ActionLabel.Visible then
@@ -154,14 +172,12 @@ local function lockBase()
             task.wait(0.05)
             firetouchinterest(lockbutton,HRP,1)
         end
-        task.wait()
     end
 end
 
 local function stealAll()
-    for _, players in ipairs(Players:GetChildren()) do
+    for _, players in pairs(Players:GetChildren()) do
         if players.Name ~= LPlayer.Name then
-            lockBase()
             stealAllShits(players.Name)
             if SellAfter then
                 sellAllPlayerShits()
@@ -174,14 +190,37 @@ end
 
 -- StealTab --
 StealTab:AddButton({Name = "Steal All KPDH", Callback = function()
-    stealAll()
+    if not anyStealRunning then
+        anyStealRunning = true
+        pcall(stealAll())
+        anyStealRunning = false
+    else
+        OrionLib:MakeNotification({
+            Name = "[clock.lua]",
+            Content = "Wait until the previous steal is finished.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    end
 end})
 
 StealTab:AddToggle({Name = "Sell After Stealing All",  Default = true,  Callback = function(bool)
     if bool then
         SellAfter = true
+        OrionLib:MakeNotification({
+            Name = "[clock.lua]",
+            Content = "You will sell characters after stealing now.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
     else
         SellAfter = false
+        OrionLib:MakeNotification({
+            Name = "[clock.lua]",
+            Content = "You won't sell characters after stealing now.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
     end
 end})
 
@@ -189,12 +228,12 @@ StealTab:AddButton({Name = "Sell All KPDH", Callback = function()
     sellAllPlayerShits()
 end})
 
-StealTab:AddToggle({Name = "Auto Lock Base",  Default = false,  Callback = function(bool)
+StealTab:AddToggle({Name = "Auto Lock Base",  Default = true,  Callback = function(bool)
     LockBool = bool
     if LockBool then
-        LockThread = task.spawn(lockBase())
+        LockThread = task.spawn(lockBase)
         OrionLib:MakeNotification({
-            Name = "Collecting Ores",
+            Name = "[clock.lua]",
             Content = "Auto Locking is now active.",
             Image = "rbxassetid://4483345998",
             Time = 3
@@ -204,7 +243,7 @@ StealTab:AddToggle({Name = "Auto Lock Base",  Default = false,  Callback = funct
             task.cancel(LockThread)
             LockThread = nil
             OrionLib:MakeNotification({
-                Name = "Auto Lock",
+                Name = "[clock.lua]",
                 Content = "Auto Locking is now disabled.",
                 Image = "rbxassetid://4483345998",
                 Time = 3
@@ -213,6 +252,32 @@ StealTab:AddToggle({Name = "Auto Lock Base",  Default = false,  Callback = funct
     end
 end})
 
+StealTab:AddTextbox({Name = "KPDH Name", Default = "Rainbow Derpy Tiger", TextDisappear = false, Callback = function(Value)
+	SpecificKPDH = Value
+end})
+
+StealTab:AddButton({Name = "Steal Specific KPDH ^", Callback = function()
+    if not anyStealRunning then
+        anyStealRunning = true
+        local feedback = pcall(stealSearchShit(SpecificKPDH))
+        if not feedback then
+            OrionLib:MakeNotification({
+                Name = "[clock.lua]",
+                Content = "No "..SpecificKPDH.." Found.",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })   
+        end
+        anyStealRunning = false
+    else
+        OrionLib:MakeNotification({
+            Name = "[clock.lua]",
+            Content = "Wait until the previous steal is finished.",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    end
+end})
 
 -- CharTab --
 CharTab:AddSlider({Name = "WalkSpeed", Min = 16, Max = 200, Default = 30, Color = Color3.fromRGB(255,255,255), Increment = 1, Callback = function(Value)
@@ -249,7 +314,7 @@ MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callbac
             end)
         else
             OrionLib:MakeNotification({
-                Name = "Incompatible Exploit",
+                Name = "[clock.lua]",
                 Content = "Your exploit is incompatible with fireproximityprompt.",
                 Image = "rbxassetid://4483345998",
                 Time = 6

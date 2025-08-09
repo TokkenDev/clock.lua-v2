@@ -71,7 +71,19 @@ GamesTab:AddButton({Name = "🎤 Steal a K-Pop Demon Hunter (Soon)", Callback = 
         Image = "rbxassetid://4483345998",
         Time = 6
     })
+    --OrionLib:Destroy()
     --TeleportService:Teleport(133781619558477, Player)
+end})
+
+GamesTab:AddButton({Name = "[🌱] Cut Grass (Soon)", Callback = function()
+    OrionLib:MakeNotification({
+        Name = "hey",
+        Content = "coming soon schnawg ✌️",
+        Image = "rbxassetid://4483345998",
+        Time = 6
+    })
+    --OrionLib:Destroy()
+    --TeleportService:Teleport(103889808775700, Player)
 end})
 
 OrionLib:Init()

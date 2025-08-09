@@ -19,10 +19,24 @@ local GamesTab = Window:MakeTab({
 })
 
 -- Init --
-
 local TestToggle = false
+local MarketplaceService = game:GetService("MarketplaceService")
 local TeleportService = game:GetService("TeleportService")
 local Player = game:GetService("Players").LocalPlayer
+
+-- Function --
+
+local function GetGameName(gameid)
+    local success, gameInfo = pcall(function()
+        return MarketplaceService:GetProductInfo(gameid)
+    end)
+
+    if success then
+        return gameInfo.Name
+    else
+        return "Failed to get game's name!"
+    end
+end
 
 -- Tab Elements --
 
@@ -59,12 +73,12 @@ end})
 -- Games --
 GamesTab:AddLabel("You can switch to other supported games here!")
 
-GamesTab:AddButton({Name = "⛏️ Mines", Callback = function()
+GamesTab:AddButton({Name = GetGameName(112279762578792), Callback = function()
     OrionLib:Destroy()
     TeleportService:Teleport(112279762578792, Player)
 end})
 
-GamesTab:AddButton({Name = "🎤 Steal a K-Pop Demon Hunter (Soon)", Callback = function()
+GamesTab:AddButton({Name = GetGameName(133781619558477).." (Soon)", Callback = function()
     OrionLib:MakeNotification({
         Name = "hey",
         Content = "coming soon schnawg ✌️",
@@ -75,7 +89,7 @@ GamesTab:AddButton({Name = "🎤 Steal a K-Pop Demon Hunter (Soon)", Callback = 
     --TeleportService:Teleport(133781619558477, Player)
 end})
 
-GamesTab:AddButton({Name = "[🌱] Cut Grass (Soon)", Callback = function()
+GamesTab:AddButton({Name = GetGameName(103889808775700).." (Soon)", Callback = function()
     OrionLib:MakeNotification({
         Name = "hey",
         Content = "coming soon schnawg ✌️",

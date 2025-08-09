@@ -25,7 +25,6 @@ local TeleportService = game:GetService("TeleportService")
 local Player = game:GetService("Players").LocalPlayer
 
 -- Function --
-
 local function GetGameName(gameid)
     local success, gameInfo = pcall(function()
         return MarketplaceService:GetProductInfo(gameid)
@@ -78,7 +77,7 @@ GamesTab:AddButton({Name = GetGameName(112279762578792), Callback = function()
     TeleportService:Teleport(112279762578792, Player)
 end})
 
-GamesTab:AddButton({Name = GetGameName(133781619558477).." (Soon)", Callback = function()
+GamesTab:AddButton({Name = GetGameName(133781619558477).." (Experimental)", Callback = function()
     OrionLib:MakeNotification({
         Name = "hey",
         Content = "coming soon schnawg ✌️",

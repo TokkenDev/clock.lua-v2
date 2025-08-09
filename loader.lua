@@ -77,15 +77,9 @@ GamesTab:AddButton({Name = GetGameName(112279762578792), Callback = function()
     TeleportService:Teleport(112279762578792, Player)
 end})
 
-GamesTab:AddButton({Name = GetGameName(133781619558477).." (Experimental)", Callback = function()
-    OrionLib:MakeNotification({
-        Name = "hey",
-        Content = "coming soon schnawg ✌️",
-        Image = "rbxassetid://4483345998",
-        Time = 6
-    })
-    --OrionLib:Destroy()
-    --TeleportService:Teleport(133781619558477, Player)
+GamesTab:AddButton({Name = GetGameName(133781619558477), Callback = function()
+    OrionLib:Destroy()
+    TeleportService:Teleport(133781619558477, Player)
 end})
 
 GamesTab:AddButton({Name = GetGameName(103889808775700).." (Soon)", Callback = function()

@@ -1,0 +1,754 @@
+-- clocklib, free to use :3
+
+local ClockLib = {}
+ClockLib.__index = ClockLib
+
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+
+local Theme = {
+    Primary = Color3.fromRGB(20, 20, 20),      -- Window and tab list background
+    Secondary = Color3.fromRGB(30, 30, 30),    -- Topbar and section backgrounds
+    Accent = Color3.fromRGB(50, 50, 50),       -- Buttons, sliders, dropdowns
+    Highlight = Color3.fromRGB(100, 100, 255), -- Borders, selected tabs
+    Text = Color3.fromRGB(220, 220, 220),      -- Text color
+    ToggleOn = Color3.fromRGB(0, 200, 0),      -- Toggle on
+    ToggleOff = Color3.fromRGB(200, 0, 0),     -- Toggle off
+    SliderFill = Color3.fromRGB(100, 100, 255),-- Slider fill
+    Dropdown = Color3.fromRGB(35, 35, 35),     -- Dropdown list background
+    TabButton = Color3.fromRGB(30, 30, 30),    -- Tab buttons
+    TabSelected = Color3.fromRGB(50, 50, 50)   -- Selected tab button
+}
+
+function ClockLib:SetTheme(newTheme)
+    for key, color in pairs(newTheme) do
+        Theme[key] = color
+    end
+end
+
+local function makeDraggable(frame)
+    local dragging = false
+    local dragInput, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+function ClockLib:CreateWindow(config)
+    local self = setmetatable({}, ClockLib)
+    
+    self.Name = config.Name or "ClockLib Window"
+    self.LoadingTitle = config.LoadingTitle or "Loading..."
+    
+    self.ScreenGui = Instance.new("ScreenGui")
+    self.ScreenGui.Parent = game.CoreGui
+    self.ScreenGui.Name = "ClockLib_" .. self.Name:gsub("%s+", "")
+    
+    self.MainFrame = Instance.new("Frame")
+    self.MainFrame.Size = UDim2.new(0, 600, 0, 400)
+    self.MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+    self.MainFrame.BackgroundColor3 = Theme.Primary
+    self.MainFrame.BorderSizePixel = 1
+    self.MainFrame.BorderColor3 = Theme.Highlight
+    self.MainFrame.Parent = self.ScreenGui
+    
+    makeDraggable(self.MainFrame)
+    
+    self.Topbar = Instance.new("Frame")
+    self.Topbar.Size = UDim2.new(1, 0, 0, 25)
+    self.Topbar.BackgroundColor3 = Theme.Secondary
+    self.Topbar.BorderSizePixel = 0
+    self.Topbar.Parent = self.MainFrame
+    
+    self.TitleLabel = Instance.new("TextLabel")
+    self.TitleLabel.Size = UDim2.new(0.9, 0, 1, 0)
+    self.TitleLabel.BackgroundTransparency = 1
+    self.TitleLabel.Text = self.Name
+    self.TitleLabel.TextColor3 = Theme.Text
+    self.TitleLabel.TextSize = 16
+    self.TitleLabel.Font = Enum.Font.SourceSansSemibold
+    self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    self.TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+    self.TitleLabel.Parent = self.Topbar
+    
+    self.CloseBtn = Instance.new("TextButton")
+    self.CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+    self.CloseBtn.Position = UDim2.new(1, -25, 0, 0)
+    self.CloseBtn.BackgroundColor3 = Theme.Accent
+    self.CloseBtn.Text = "X"
+    self.CloseBtn.TextColor3 = Theme.Text
+    self.CloseBtn.TextSize = 14
+    self.CloseBtn.Font = Enum.Font.SourceSansBold
+    self.CloseBtn.Parent = self.Topbar
+    self.CloseBtn.MouseButton1Click:Connect(function()
+        self:Destroy()
+    end)
+    
+    self.TabFrame = Instance.new("Frame")
+    self.TabFrame.Size = UDim2.new(1, 0, 1, -25)
+    self.TabFrame.Position = UDim2.new(0, 0, 0, 25)
+    self.TabFrame.BackgroundTransparency = 1
+    self.TabFrame.Parent = self.MainFrame
+    
+    self.TabList = Instance.new("ScrollingFrame")
+    self.TabList.Size = UDim2.new(0.25, 0, 1, 0)
+    self.TabList.BackgroundColor3 = Theme.Primary
+    self.TabList.BorderSizePixel = 0
+    self.TabList.ScrollBarThickness = 0
+    self.TabList.Parent = self.TabFrame
+    
+    self.TabListLayout = Instance.new("UIListLayout")
+    self.TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    self.TabListLayout.Padding = UDim.new(0, 2)
+    self.TabListLayout.Parent = self.TabList
+    
+    self.ContentFrame = Instance.new("Frame")
+    self.ContentFrame.Size = UDim2.new(0.75, 0, 1, 0)
+    self.ContentFrame.Position = UDim2.new(0.25, 0, 0, 0)
+    self.ContentFrame.BackgroundTransparency = 1
+    self.ContentFrame.Parent = self.TabFrame
+    
+    self.Tabs = {}
+    self.CurrentTab = nil
+    
+    return self
+end
+
+function ClockLib:Destroy()
+    if self.ScreenGui then
+        self.ScreenGui:Destroy()
+    end
+end
+
+function ClockLib:Notify(config)
+    local height = config.Description and 80 or 40
+    local notif = Instance.new("Frame")
+    notif.Size = UDim2.new(0, 250, 0, height)
+    notif.Position = UDim2.new(1, -260, 1, - (height + 10))
+    notif.BackgroundColor3 = Theme.Secondary
+    notif.BorderSizePixel = 1
+    notif.BorderColor3 = Theme.Highlight
+    notif.Parent = self.ScreenGui
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -10, 0, 20)
+    titleLabel.Position = UDim2.new(0, 5, 0, 5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = config.Title or "Notification"
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.TextSize = 14
+    titleLabel.Font = Enum.Font.SourceSansSemibold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextWrapped = true
+    titleLabel.Parent = notif
+    
+    if config.Description then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Size = UDim2.new(1, -10, 0, height - 30)
+        descLabel.Position = UDim2.new(0, 5, 0, 25)
+        descLabel.BackgroundTransparency = 1
+        descLabel.Text = config.Description
+        descLabel.TextColor3 = Theme.Text
+        descLabel.TextSize = 12
+        descLabel.Font = Enum.Font.SourceSans
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextWrapped = true
+        descLabel.Parent = notif
+    end
+    
+    wait(config.Duration or 3)
+    notif:Destroy()
+end
+
+function ClockLib:CreateTab(config)
+    local tab = {}
+    tab.Name = config.Name or "Tab"
+    
+    tab.Button = Instance.new("TextButton")
+    tab.Button.Size = UDim2.new(1, 0, 0, 30)
+    tab.Button.BackgroundColor3 = Theme.TabButton
+    tab.Button.Text = tab.Name
+    tab.Button.TextColor3 = Theme.Text
+    tab.Button.TextSize = 14
+    tab.Button.Font = Enum.Font.SourceSansSemibold
+    tab.Button.TextXAlignment = Enum.TextXAlignment.Left
+    tab.Button.Parent = self.TabList
+    
+    tab.Container = Instance.new("ScrollingFrame")
+    tab.Container.Size = UDim2.new(1, 0, 1, 0)
+    tab.Container.BackgroundTransparency = 1
+    tab.Container.ScrollBarThickness = 4
+    tab.Container.ScrollBarImageColor3 = Theme.Highlight
+    tab.Container.Visible = false
+    tab.Container.Parent = self.ContentFrame
+    
+    tab.Layout = Instance.new("UIListLayout")
+    tab.Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    tab.Layout.Padding = UDim.new(0, 8)
+    tab.Layout.Parent = tab.Container
+    
+    local function selectTab()
+        if self.CurrentTab then
+            self.CurrentTab.Container.Visible = false
+            self.CurrentTab.Button.BackgroundColor3 = Theme.TabButton
+        end
+        tab.Container.Visible = true
+        tab.Button.BackgroundColor3 = Theme.TabSelected
+        self.CurrentTab = tab
+    end
+    
+    tab.Button.MouseButton1Click:Connect(selectTab)
+    
+    table.insert(self.Tabs, tab)
+    
+    if #self.Tabs == 1 then
+        selectTab()
+    end
+    
+    function tab:CreateSection(config)
+        local section = {}
+        section.Name = config.Name or "Section"
+        
+        section.Frame = Instance.new("Frame")
+        section.Frame.Size = UDim2.new(1, -10, 0, 0)
+        section.Frame.AutomaticSize = Enum.AutomaticSize.Y
+        section.Frame.BackgroundColor3 = Theme.Secondary
+        section.Frame.BorderSizePixel = 1
+        section.Frame.BorderColor3 = Theme.Highlight
+        section.Frame.Parent = tab.Container
+        
+        section.Title = Instance.new("TextLabel")
+        section.Title.Size = UDim2.new(1, -10, 0, 20)
+        section.Title.Position = UDim2.new(0, 5, 0, 5)
+        section.Title.BackgroundTransparency = 1
+        section.Title.Text = section.Name
+        section.Title.TextColor3 = Theme.Text
+        section.Title.TextSize = 14
+        section.Title.Font = Enum.Font.SourceSansSemibold
+        section.Title.TextXAlignment = Enum.TextXAlignment.Left
+        section.Title.Parent = section.Frame
+        
+        section.Content = Instance.new("Frame")
+        section.Content.Size = UDim2.new(1, 0, 0, 0)
+        section.Content.AutomaticSize = Enum.AutomaticSize.Y
+        section.Content.BackgroundTransparency = 1
+        section.Content.Position = UDim2.new(0, 0, 0, 25)
+        section.Content.Parent = section.Frame
+        
+        section.Layout = Instance.new("UIListLayout")
+        section.Layout.SortOrder = Enum.SortOrder.LayoutOrder
+        section.Layout.Padding = UDim.new(0, 5)
+        section.Layout.Parent = section.Content
+        
+        function section:CreateButton(config)
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, -10, 0, 25)
+            button.Position = UDim2.new(0, 5, 0, 0)
+            button.BackgroundColor3 = Theme.Accent
+            button.BorderSizePixel = 1
+            button.BorderColor3 = Theme.Highlight
+            button.Text = config.Name or "Button"
+            button.TextColor3 = Theme.Text
+            button.TextSize = 12
+            button.Font = Enum.Font.SourceSans
+            button.Parent = section.Content
+            
+            button.MouseButton1Click:Connect(config.Callback or function() end)
+            return button
+        end
+        
+        function section:CreateToggle(config)
+            local toggle = {}
+            toggle.Value = config.Default or false
+            toggle.Frame = Instance.new("Frame")
+            toggle.Frame.Size = UDim2.new(1, -10, 0, 25)
+            toggle.Frame.Position = UDim2.new(0, 5, 0, 0)
+            toggle.Frame.BackgroundTransparency = 1
+            toggle.Frame.Parent = section.Content
+            
+            toggle.Label = Instance.new("TextLabel")
+            toggle.Label.Size = UDim2.new(0.8, 0, 1, 0)
+            toggle.Label.BackgroundTransparency = 1
+            toggle.Label.Text = config.Name or "Toggle"
+            toggle.Label.TextColor3 = Theme.Text
+            toggle.Label.TextSize = 12
+            toggle.Label.Font = Enum.Font.SourceSans
+            toggle.Label.TextXAlignment = Enum.TextXAlignment.Left
+            toggle.Label.Parent = toggle.Frame
+            
+            toggle.Button = Instance.new("TextButton")
+            toggle.Button.Size = UDim2.new(0, 40, 1, 0)
+            toggle.Button.Position = UDim2.new(1, -40, 0, 0)
+            toggle.Button.BackgroundColor3 = toggle.Value and Theme.ToggleOn or Theme.ToggleOff
+            toggle.Button.BorderSizePixel = 1
+            toggle.Button.BorderColor3 = Theme.Highlight
+            toggle.Button.Text = toggle.Value and "ON" or "OFF"
+            toggle.Button.TextColor3 = Theme.Text
+            toggle.Button.TextSize = 12
+            toggle.Button.Font = Enum.Font.SourceSans
+            toggle.Button.Parent = toggle.Frame
+            
+            toggle.Button.MouseButton1Click:Connect(function()
+                toggle.Value = not toggle.Value
+                toggle.Button.BackgroundColor3 = toggle.Value and Theme.ToggleOn or Theme.ToggleOff
+                toggle.Button.Text = toggle.Value and "ON" or "OFF"
+                if config.Callback then config.Callback(toggle.Value) end
+            end)
+            
+            function toggle:SetState(value)
+                toggle.Value = value
+                toggle.Button.BackgroundColor3 = toggle.Value and Theme.ToggleOn or Theme.ToggleOff
+                toggle.Button.Text = toggle.Value and "ON" or "OFF"
+                if config.Callback then config.Callback(toggle.Value) end
+            end
+            
+            return toggle
+        end
+        
+        function section:CreateSlider(config)
+            local slider = {}
+            slider.Min = config.Min or 0
+            slider.Max = config.Max or 100
+            slider.Value = config.Default or slider.Min
+            slider.Increment = config.Increment or 1
+            
+            slider.Frame = Instance.new("Frame")
+            slider.Frame.Size = UDim2.new(1, -10, 0, 35)
+            slider.Frame.Position = UDim2.new(0, 5, 0, 0)
+            slider.Frame.BackgroundTransparency = 1
+            slider.Frame.Parent = section.Content
+            
+            slider.Label = Instance.new("TextLabel")
+            slider.Label.Size = UDim2.new(1, 0, 0, 15)
+            slider.Label.BackgroundTransparency = 1
+            slider.Label.Text = config.Name .. ": " .. slider.Value
+            slider.Label.TextColor3 = Theme.Text
+            slider.Label.TextSize = 12
+            slider.Label.Font = Enum.Font.SourceSans
+            slider.Label.TextXAlignment = Enum.TextXAlignment.Left
+            slider.Label.Parent = slider.Frame
+            
+            slider.Bar = Instance.new("Frame")
+            slider.Bar.Size = UDim2.new(1, 0, 0, 10)
+            slider.Bar.Position = UDim2.new(0, 0, 0, 20)
+            slider.Bar.BackgroundColor3 = Theme.Accent
+            slider.Bar.BorderSizePixel = 1
+            slider.Bar.BorderColor3 = Theme.Highlight
+            slider.Bar.Parent = slider.Frame
+            
+            slider.Fill = Instance.new("Frame")
+            slider.Fill.Size = UDim2.new((slider.Value - slider.Min) / (slider.Max - slider.Min), 0, 1, 0)
+            slider.Fill.BackgroundColor3 = Theme.SliderFill
+            slider.Fill.BorderSizePixel = 0
+            slider.Fill.Parent = slider.Bar
+            
+            local dragging = false
+            slider.Bar.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = true
+                end
+            end)
+            slider.Bar.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = false
+                end
+            end)
+            UIS.InputChanged:Connect(function(input)
+                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                    local relativeX = math.clamp((input.Position.X - slider.Bar.AbsolutePosition.X) / slider.Bar.AbsoluteSize.X, 0, 1)
+                    slider.Value = math.floor((slider.Min + relativeX * (slider.Max - slider.Min)) / slider.Increment) * slider.Increment
+                    slider.Fill.Size = UDim2.new(relativeX, 0, 1, 0)
+                    slider.Label.Text = config.Name .. ": " .. slider.Value
+                    if config.Callback then config.Callback(slider.Value) end
+                end
+            end)
+            
+            function slider:SetValue(value)
+                value = math.clamp(math.floor(value / slider.Increment) * slider.Increment, slider.Min, slider.Max)
+                slider.Value = value
+                slider.Fill.Size = UDim2.new((slider.Value - slider.Min) / (slider.Max - slider.Min), 0, 1, 0)
+                slider.Label.Text = config.Name .. ": " .. slider.Value
+                if config.Callback then config.Callback(slider.Value) end
+            end
+            
+            return slider
+        end
+        
+        function section:CreateDropdown(config)
+            local dropdown = {}
+            dropdown.Options = config.Options or {}
+            dropdown.Selected = config.Default or dropdown.Options[1]
+            dropdown.Open = false
+            
+            dropdown.Frame = Instance.new("Frame")
+            dropdown.Frame.Size = UDim2.new(1, -10, 0, 25)
+            dropdown.Frame.Position = UDim2.new(0, 5, 0, 0)
+            dropdown.Frame.BackgroundTransparency = 1
+            dropdown.Frame.Parent = section.Content
+            
+            dropdown.Button = Instance.new("TextButton")
+            dropdown.Button.Size = UDim2.new(1, 0, 1, 0)
+            dropdown.Button.BackgroundColor3 = Theme.Accent
+            dropdown.Button.BorderSizePixel = 1
+            dropdown.Button.BorderColor3 = Theme.Highlight
+            dropdown.Button.Text = config.Name .. ": " .. (dropdown.Selected or "None")
+            dropdown.Button.TextColor3 = Theme.Text
+            dropdown.Button.TextSize = 12
+            dropdown.Button.Font = Enum.Font.SourceSans
+            dropdown.Button.TextXAlignment = Enum.TextXAlignment.Left
+            dropdown.Button.Parent = dropdown.Frame
+            
+            dropdown.List = Instance.new("ScrollingFrame")
+            dropdown.List.Size = UDim2.new(1, 0, 0, 80)
+            dropdown.List.Position = UDim2.new(0, 0, 1, 2)
+            dropdown.List.BackgroundColor3 = Theme.Dropdown
+            dropdown.List.BorderSizePixel = 1
+            dropdown.List.BorderColor3 = Theme.Highlight
+            dropdown.List.Visible = false
+            dropdown.List.ScrollBarThickness = 4
+            dropdown.List.ScrollBarImageColor3 = Theme.Highlight
+            dropdown.List.Parent = dropdown.Frame
+            
+            dropdown.Layout = Instance.new("UIListLayout")
+            dropdown.Layout.SortOrder = Enum.SortOrder.LayoutOrder
+            dropdown.Layout.Padding = UDim.new(0, 2)
+            dropdown.Layout.Parent = dropdown.List
+            
+            for _, option in ipairs(dropdown.Options) do
+                local optBtn = Instance.new("TextButton")
+                optBtn.Size = UDim2.new(1, 0, 0, 20)
+                optBtn.BackgroundColor3 = Theme.Dropdown
+                optBtn.Text = option
+                optBtn.TextColor3 = Theme.Text
+                optBtn.TextSize = 12
+                optBtn.Font = Enum.Font.SourceSans
+                optBtn.TextXAlignment = Enum.TextXAlignment.Left
+                optBtn.Parent = dropdown.List
+                
+                optBtn.MouseButton1Click:Connect(function()
+                    dropdown.Selected = option
+                    dropdown.Button.Text = config.Name .. ": " .. option
+                    dropdown.List.Visible = false
+                    dropdown.Open = false
+                    if config.Callback then config.Callback(option) end
+                end)
+            end
+            
+            dropdown.Button.MouseButton1Click:Connect(function()
+                dropdown.Open = not dropdown.Open
+                dropdown.List.Visible = dropdown.Open
+            end)
+            
+            return dropdown
+        end
+        
+        function section:CreateMultiDropdown(config)
+            local multiDropdown = {}
+            multiDropdown.Options = config.Options or {}
+            multiDropdown.Selected = config.Default or {}
+            multiDropdown.Open = false
+            multiDropdown.OptionButtons = {}
+            
+            multiDropdown.Frame = Instance.new("Frame")
+            multiDropdown.Frame.Size = UDim2.new(1, -10, 0, 25)
+            multiDropdown.Frame.Position = UDim2.new(0, 5, 0, 0)
+            multiDropdown.Frame.BackgroundTransparency = 1
+            multiDropdown.Frame.Parent = section.Content
+            
+            multiDropdown.Button = Instance.new("TextButton")
+            multiDropdown.Button.Size = UDim2.new(1, 0, 1, 0)
+            multiDropdown.Button.BackgroundColor3 = Theme.Accent
+            multiDropdown.Button.BorderSizePixel = 1
+            multiDropdown.Button.BorderColor3 = Theme.Highlight
+            multiDropdown.Button.Text = config.Name .. ": " .. (next(multiDropdown.Selected) and table.concat(multiDropdown.Selected, ", ") or "None")
+            multiDropdown.Button.TextColor3 = Theme.Text
+            multiDropdown.Button.TextSize = 12
+            multiDropdown.Button.Font = Enum.Font.SourceSans
+            multiDropdown.Button.TextXAlignment = Enum.TextXAlignment.Left
+            multiDropdown.Button.Parent = multiDropdown.Frame
+            
+            multiDropdown.List = Instance.new("ScrollingFrame")
+            multiDropdown.List.Size = UDim2.new(1, 0, 0, 80)
+            multiDropdown.List.Position = UDim2.new(0, 0, 1, 2)
+            multiDropdown.List.BackgroundColor3 = Theme.Dropdown
+            multiDropdown.List.BorderSizePixel = 1
+            multiDropdown.List.BorderColor3 = Theme.Highlight
+            multiDropdown.List.Visible = false
+            multiDropdown.List.ScrollBarThickness = 4
+            multiDropdown.List.ScrollBarImageColor3 = Theme.Highlight
+            multiDropdown.List.Parent = multiDropdown.Frame
+            
+            multiDropdown.Layout = Instance.new("UIListLayout")
+            multiDropdown.Layout.SortOrder = Enum.SortOrder.LayoutOrder
+            multiDropdown.Layout.Padding = UDim.new(0, 2)
+            multiDropdown.Layout.Parent = multiDropdown.List
+            
+            local function updateButtonText()
+                multiDropdown.Button.Text = config.Name .. ": " .. (next(multiDropdown.Selected) and table.concat(multiDropdown.Selected, ", ") or "None")
+            end
+            
+            for _, option in ipairs(multiDropdown.Options) do
+                local optFrame = Instance.new("Frame")
+                optFrame.Size = UDim2.new(1, 0, 0, 20)
+                optFrame.BackgroundTransparency = 1
+                optFrame.Parent = multiDropdown.List
+                
+                local optCheck = Instance.new("TextButton")
+                optCheck.Size = UDim2.new(1, 0, 1, 0)
+                optCheck.BackgroundTransparency = 1
+                optCheck.Text = option .. (table.find(multiDropdown.Selected, option) and " ✓" or "")
+                optCheck.TextColor3 = Theme.Text
+                optCheck.TextSize = 12
+                optCheck.Font = Enum.Font.SourceSans
+                optCheck.TextXAlignment = Enum.TextXAlignment.Left
+                optCheck.Parent = optFrame
+                multiDropdown.OptionButtons[option] = optCheck
+                
+                optCheck.MouseButton1Click:Connect(function()
+                    if table.find(multiDropdown.Selected, option) then
+                        table.remove(multiDropdown.Selected, table.find(multiDropdown.Selected, option))
+                    else
+                        table.insert(multiDropdown.Selected, option)
+                    end
+                    optCheck.Text = option .. (table.find(multiDropdown.Selected, option) and " ✓" or "")
+                    updateButtonText()
+                    if config.Callback then config.Callback(multiDropdown.Selected) end
+                end)
+            end
+            
+            multiDropdown.Button.MouseButton1Click:Connect(function()
+                multiDropdown.Open = not multiDropdown.Open
+                multiDropdown.List.Visible = multiDropdown.Open
+            end)
+            
+            function multiDropdown:SetSelected(options)
+                multiDropdown.Selected = {}
+                for _, option in ipairs(options) do
+                    if table.find(multiDropdown.Options, option) then
+                        table.insert(multiDropdown.Selected, option)
+                    end
+                end
+                for option, button in pairs(multiDropdown.OptionButtons) do
+                    button.Text = option .. (table.find(multiDropdown.Selected, option) and " ✓" or "")
+                end
+                updateButtonText()
+                if config.Callback then config.Callback(multiDropdown.Selected) end
+            end
+            
+            function multiDropdown:GetSelected()
+                return multiDropdown.Selected
+            end
+            
+            return multiDropdown
+        end
+        
+        function section:CreateKeybind(config)
+            local keybind = {}
+            keybind.Key = config.Default or Enum.KeyCode.Unknown
+            keybind.Binding = false
+            
+            keybind.Frame = Instance.new("Frame")
+            keybind.Frame.Size = UDim2.new(1, -10, 0, 25)
+            keybind.Frame.Position = UDim2.new(0, 5, 0, 0)
+            keybind.Frame.BackgroundTransparency = 1
+            keybind.Frame.Parent = section.Content
+            
+            keybind.Label = Instance.new("TextLabel")
+            keybind.Label.Size = UDim2.new(0.8, 0, 1, 0)
+            keybind.Label.BackgroundTransparency = 1
+            keybind.Label.Text = config.Name or "Keybind"
+            keybind.Label.TextColor3 = Theme.Text
+            keybind.Label.TextSize = 12
+            keybind.Label.Font = Enum.Font.SourceSans
+            keybind.Label.TextXAlignment = Enum.TextXAlignment.Left
+            keybind.Label.Parent = keybind.Frame
+            
+            keybind.Button = Instance.new("TextButton")
+            keybind.Button.Size = UDim2.new(0, 40, 1, 0)
+            keybind.Button.Position = UDim2.new(1, -40, 0, 0)
+            keybind.Button.BackgroundColor3 = Theme.Accent
+            keybind.Button.BorderSizePixel = 1
+            keybind.Button.BorderColor3 = Theme.Highlight
+            keybind.Button.Text = keybind.Key.Name
+            keybind.Button.TextColor3 = Theme.Text
+            keybind.Button.TextSize = 12
+            keybind.Button.Font = Enum.Font.SourceSans
+            keybind.Button.Parent = keybind.Frame
+            
+            keybind.Button.MouseButton1Click:Connect(function()
+                keybind.Binding = true
+                keybind.Button.Text = "..."
+            end)
+            
+            UIS.InputBegan:Connect(function(input)
+                if keybind.Binding and input.UserInputType == Enum.UserInputType.Keyboard then
+                    keybind.Key = input.KeyCode
+                    keybind.Button.Text = input.KeyCode.Name
+                    keybind.Binding = false
+                    if config.Callback then config.Callback(keybind.Key) end
+                end
+            end)
+            
+            UIS.InputBegan:Connect(function(input)
+                if not keybind.Binding and input.KeyCode == keybind.Key then
+                    if config.Callback then config.Callback(keybind.Key) end
+                end
+            end)
+            
+            function keybind:SetKey(newKey)
+                keybind.Key = newKey
+                keybind.Button.Text = newKey.Name
+                if config.Callback then config.Callback(keybind.Key) end
+            end
+            
+            return keybind
+        end
+        
+        function section:CreateColorPicker(config)
+            local colorPicker = {}
+            colorPicker.Color = config.Default or Color3.fromRGB(255, 255, 255)
+            colorPicker.Open = false
+            
+            colorPicker.Frame = Instance.new("Frame")
+            colorPicker.Frame.Size = UDim2.new(1, -10, 0, 25)
+            colorPicker.Frame.Position = UDim2.new(0, 5, 0, 0)
+            colorPicker.Frame.BackgroundTransparency = 1
+            colorPicker.Frame.Parent = section.Content
+            
+            colorPicker.Label = Instance.new("TextLabel")
+            colorPicker.Label.Size = UDim2.new(0.8, 0, 1, 0)
+            colorPicker.Label.BackgroundTransparency = 1
+            colorPicker.Label.Text = config.Name or "Color Picker"
+            colorPicker.Label.TextColor3 = Theme.Text
+            colorPicker.Label.TextSize = 12
+            colorPicker.Label.Font = Enum.Font.SourceSans
+            colorPicker.Label.TextXAlignment = Enum.TextXAlignment.Left
+            colorPicker.Label.Parent = colorPicker.Frame
+            
+            colorPicker.Button = Instance.new("TextButton")
+            colorPicker.Button.Size = UDim2.new(0, 40, 1, 0)
+            colorPicker.Button.Position = UDim2.new(1, -40, 0, 0)
+            colorPicker.Button.BackgroundColor3 = colorPicker.Color
+            colorPicker.Button.BorderSizePixel = 1
+            colorPicker.Button.BorderColor3 = Theme.Highlight
+            colorPicker.Button.Text = ""
+            colorPicker.Button.Parent = colorPicker.Frame
+            
+            colorPicker.Picker = Instance.new("Frame")
+            colorPicker.Picker.Size = UDim2.new(1, 0, 0, 90)
+            colorPicker.Picker.Position = UDim2.new(0, 0, 1, 2)
+            colorPicker.Picker.BackgroundColor3 = Theme.Dropdown
+            colorPicker.Picker.BorderSizePixel = 1
+            colorPicker.Picker.BorderColor3 = Theme.Highlight
+            colorPicker.Picker.Visible = false
+            colorPicker.Picker.Parent = colorPicker.Frame
+            
+            colorPicker.Layout = Instance.new("UIListLayout")
+            colorPicker.Layout.SortOrder = Enum.SortOrder.LayoutOrder
+            colorPicker.Layout.Padding = UDim.new(0, 5)
+            colorPicker.Layout.Parent = colorPicker.Picker
+            
+            local sliders = {"R", "G", "B"}
+            colorPicker.Sliders = {}
+            for i, color in ipairs(sliders) do
+                local sliderFrame = Instance.new("Frame")
+                sliderFrame.Size = UDim2.new(1, -10, 0, 25)
+                sliderFrame.BackgroundTransparency = 1
+                sliderFrame.Parent = colorPicker.Picker
+                
+                local label = Instance.new("TextLabel")
+                label.Size = UDim2.new(0, 20, 1, 0)
+                label.BackgroundTransparency = 1
+                label.Text = color
+                label.TextColor3 = Theme.Text
+                label.TextSize = 12
+                label.Font = Enum.Font.SourceSans
+                label.Parent = sliderFrame
+                
+                local bar = Instance.new("Frame")
+                bar.Size = UDim2.new(1, -30, 0, 10)
+                bar.Position = UDim2.new(0, 25, 0.5, -5)
+                bar.BackgroundColor3 = Theme.Accent
+                bar.BorderSizePixel = 1
+                bar.BorderColor3 = Theme.Highlight
+                bar.Parent = sliderFrame
+                
+                local fill = Instance.new("Frame")
+                fill.Size = UDim2.new(colorPicker.Color[color:lower()] / 255, 0, 1, 0)
+                fill.BackgroundColor3 = Theme.SliderFill
+                fill.BorderSizePixel = 0
+                fill.Parent = bar
+                
+                colorPicker.Sliders[color] = {Bar = bar, Fill = fill}
+                
+                local dragging = false
+                bar.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        dragging = true
+                    end
+                end)
+                bar.InputEnded:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        dragging = false
+                    end
+                end)
+                UIS.InputChanged:Connect(function(input)
+                    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                        local relativeX = math.clamp((input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+                        local value = math.floor(relativeX * 255)
+                        colorPicker.Color = Color3.fromRGB(
+                            color == "R" and value or colorPicker.Color.r * 255,
+                            color == "G" and value or colorPicker.Color.g * 255,
+                            color == "B" and value or colorPicker.Color.b * 255
+                        )
+                        colorPicker.Sliders[color].Fill.Size = UDim2.new(relativeX, 0, 1, 0)
+                        colorPicker.Button.BackgroundColor3 = colorPicker.Color
+                        if config.Callback then config.Callback(colorPicker.Color) end
+                    end
+                end)
+            end
+            
+            colorPicker.Button.MouseButton1Click:Connect(function()
+                colorPicker.Open = not colorPicker.Open
+                colorPicker.Picker.Visible = colorPicker.Open
+            end)
+            
+            function colorPicker:SetColor(color)
+                colorPicker.Color = color
+                colorPicker.Button.BackgroundColor3 = colorPicker.Color
+                colorPicker.Sliders.R.Fill.Size = UDim2.new(colorPicker.Color.r, 0, 1, 0)
+                colorPicker.Sliders.G.Fill.Size = UDim2.new(colorPicker.Color.g, 0, 1, 0)
+                colorPicker.Sliders.B.Fill.Size = UDim2.new(colorPicker.Color.b, 0, 1, 0)
+                if config.Callback then config.Callback(colorPicker.Color) end
+            end
+            
+            return colorPicker
+        end
+        
+        return section
+    end
+    
+    return tab
+end
+
+return ClockLib

@@ -18,22 +18,14 @@ local Theme = {
   Border = Color3.fromRGB(40, 40, 48)
 }
 
-local function round(x, step)
-  step = step or 1
-  return math.floor(x / step + 0.5) * step
-end
-
+-- Utils
+local function round(x, step) step = step or 1 return math.floor(x / step + 0.5) * step end
 local function make(instance, props, children)
   local obj = Instance.new(instance)
-  for k, v in pairs(props or {}) do
-    obj[k] = v
-  end
-  for _, child in ipairs(children or {}) do
-    child.Parent = obj
-  end
+  for k, v in pairs(props or {}) do obj[k] = v end
+  for _, child in ipairs(children or {}) do child.Parent = obj end
   return obj
 end
-
 local function uiPadding(l, t, r, b)
   local p = Instance.new("UIPadding")
   p.PaddingLeft = UDim.new(0, l or 0)
@@ -42,13 +34,7 @@ local function uiPadding(l, t, r, b)
   p.PaddingBottom = UDim.new(0, b or 0)
   return p
 end
-
-local function uiCorner(rad)
-  local c = Instance.new("UICorner")
-  c.CornerRadius = UDim.new(0, rad or 6)
-  return c
-end
-
+local function uiCorner(rad) local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, rad or 6); return c end
 local function uiStroke(col, thickness, trans)
   local s = Instance.new("UIStroke")
   s.Color = col or Theme.Border
@@ -56,12 +42,11 @@ local function uiStroke(col, thickness, trans)
   s.Transparency = trans or 0
   return s
 end
-
 local function tween(o, ti, goal)
   return TweenService:Create(o, TweenInfo.new(ti or 0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), goal)
 end
 
--- Draggable helper
+-- Draggable
 local function makeDraggable(frame, dragArea)
   local dragging, dragStart, startPos
   dragArea = dragArea or frame
@@ -71,9 +56,7 @@ local function makeDraggable(frame, dragArea)
       dragStart = input.Position
       startPos = frame.Position
       input.Changed:Connect(function()
-        if input.UserInputState == Enum.UserInputState.End then
-          dragging = false
-        end
+        if input.UserInputState == Enum.UserInputState.End then dragging = false end
       end)
     end
   end)
@@ -90,52 +73,29 @@ local Neverlose = {
   Flags = {},
   _flagObjects = {},
   _connections = {},
-  _notifications = {},
   _windows = {},
 }
 
-function Neverlose:SetTheme(t)
-  for k, v in pairs(t or {}) do
-    if Theme[k] ~= nil then Theme[k] = v end
-  end
-end
-
-function Neverlose:Get(flag)
-  local f = self.Flags[flag]
-  return f and f.Value or nil
-end
-
+function Neverlose:SetTheme(t) for k, v in pairs(t or {}) do if Theme[k] ~= nil then Theme[k] = v end end end
+function Neverlose:Get(flag) local f = self.Flags[flag]; return f and f.Value or nil end
 function Neverlose:Set(flag, value)
   local obj = self._flagObjects[flag]
-  if obj and obj.Set then
-    obj.Set(value)
-  elseif self.Flags[flag] then
-    self.Flags[flag].Value = value
-  end
+  if obj and obj.Set then obj.Set(value) elseif self.Flags[flag] then self.Flags[flag].Value = value end
 end
-
 function Neverlose:OnChanged(flag, callback)
   local f = self.Flags[flag]
-  if not f then
-    self.Flags[flag] = { Value = nil, Changed = Instance.new("BindableEvent") }
-    f = self.Flags[flag]
-  end
+  if not f then self.Flags[flag] = { Value = nil, Changed = Instance.new("BindableEvent") }; f = self.Flags[flag] end
   return f.Changed.Event:Connect(callback)
 end
 
--- Notifications
 function Neverlose:Notify(opt)
-  -- opt: {Title, Content, Duration=3}
   local Title = opt.Title or "Notification"
   local Content = opt.Content or ""
   local Duration = tonumber(opt.Duration) or 3
-
   if not self._screen then return end
 
-  local holder = self._notifHolder
-  if not holder then
-    holder = make("Frame", {
-      Name = "Notifications",
+  if not self._notifHolder then
+    self._notifHolder = make("Frame", {
       BackgroundTransparency = 1,
       AnchorPoint = Vector2.new(1, 0),
       Position = UDim2.new(1, -16, 0, 16),
@@ -150,45 +110,26 @@ function Neverlose:Notify(opt)
         SortOrder = Enum.SortOrder.LayoutOrder
       })
     })
-    self._notifHolder = holder
   end
 
-  local card = make("Frame", {
-    BackgroundColor3 = Theme.Surface,
-    Size = UDim2.new(0, 320, 0, 0),
-    Transparency = 0,
-  }, {
-    uiCorner(8),
-    uiStroke(Theme.Border, 1, 0.15),
-    uiPadding(12, 10, 12, 10),
+  local card = make("Frame", {BackgroundColor3 = Theme.Surface, Size = UDim2.new(0, 320, 0, 0)}, {
+    uiCorner(8), uiStroke(Theme.Border, 1, 0.15), uiPadding(12, 10, 12, 10)
   })
-  card.Parent = holder
+  card.Parent = self._notifHolder
 
   local titleLbl = make("TextLabel", {
-    BackgroundTransparency = 1,
-    Font = Enum.Font.GothamSemibold,
-    Text = Title,
-    TextColor3 = Theme.Text,
-    TextSize = 14,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    Size = UDim2.new(1, 0, 0, 18),
+    BackgroundTransparency = 1, Font = Enum.Font.GothamSemibold, Text = Title, TextColor3 = Theme.Text,
+    TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, 0, 0, 18)
   })
   titleLbl.Parent = card
 
   local contentLbl = make("TextLabel", {
-    BackgroundTransparency = 1,
-    Font = Enum.Font.Gotham,
-    Text = Content,
-    TextColor3 = Theme.SubText,
-    TextSize = 13,
-    TextWrapped = true,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    Position = UDim2.new(0, 0, 0, 20),
-    Size = UDim2.new(1, 0, 0, 0)
+    BackgroundTransparency = 1, Font = Enum.Font.Gotham, Text = Content, TextColor3 = Theme.SubText,
+    TextSize = 13, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
+    Position = UDim2.new(0, 0, 0, 20), Size = UDim2.new(1, 0, 0, 0)
   })
   contentLbl.Parent = card
 
-  -- automatic size
   local function resize()
     contentLbl.Size = UDim2.new(1, 0, 0, math.max(0, contentLbl.TextBounds.Y))
     card.Size = UDim2.new(0, 320, 0, 20 + contentLbl.AbsoluteSize.Y)
@@ -202,950 +143,530 @@ function Neverlose:Notify(opt)
 
   task.delay(Duration, function()
     if card and card.Parent then
-      local tw = tween(card, 0.18, {BackgroundTransparency = 1})
-      tw:Play()
-      tw.Completed:Wait()
-      card:Destroy()
+      local tw = tween(card, 0.18, {BackgroundTransparency = 1}); tw:Play(); tw.Completed:Wait(); card:Destroy()
     end
   end)
 end
 
--- Window creation
 function Neverlose:CreateWindow(cfg)
-  -- cfg: {Name, Width=820, Height=520, Theme?}
   if cfg and cfg.Theme then self:SetTheme(cfg.Theme) end
 
   local screen = make("ScreenGui", {
-    Name = "NeverloseUI",
-    ResetOnSpawn = false,
-    ZIndexBehavior = Enum.ZIndexBehavior.Global,
-    Parent = CoreGui
+    Name = "NeverloseUI", ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Global, Parent = CoreGui
   })
-
   self._screen = screen
 
   local width, height = cfg.Width or 860, cfg.Height or 540
   local win = make("Frame", {
-    Name = "Window",
-    BackgroundColor3 = Theme.Background,
-    Size = UDim2.new(0, width, 0, height),
-    Position = UDim2.new(0.5, -width/2, 0.5, -height/2),
-  }, {
-    uiCorner(10),
-    uiStroke(Theme.Border, 1, 0.15)
-  })
+    BackgroundColor3 = Theme.Background, Size = UDim2.new(0, width, 0, height),
+    Position = UDim2.new(0.5, -width/2, 0.5, -height/2)
+  }, { uiCorner(10), uiStroke(Theme.Border, 1, 0.15) })
   win.Parent = screen
 
-  local header = make("Frame", {
-    Name = "Header",
-    BackgroundColor3 = Theme.Surface,
-    Size = UDim2.new(1, 0, 0, 42),
-  }, {
-    uiCorner(10),
-    uiStroke(Theme.Border, 1, 0.15),
-    uiPadding(12, 8, 12, 8)
+  local header = make("Frame", {BackgroundColor3 = Theme.Surface, Size = UDim2.new(1, 0, 0, 42)}, {
+    uiCorner(10), uiStroke(Theme.Border, 1, 0.15), uiPadding(12, 8, 12, 8)
   })
   header.Parent = win
 
   local title = make("TextLabel", {
-    BackgroundTransparency = 1,
-    Font = Enum.Font.GothamBold,
-    Text = (cfg.Name or "Neverlose UI"),
-    TextColor3 = Theme.Text,
-    TextSize = 16,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    Size = UDim2.new(1, -160, 1, 0),
+    BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = (cfg.Name or "Neverlose UI"),
+    TextColor3 = Theme.Text, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, -160, 1, 0)
   })
   title.Parent = header
 
-  -- Tab bar
-  local tabBar = make("Frame", {
-    Name = "TabBar",
-    BackgroundTransparency = 1,
-    Size = UDim2.new(0, 460, 1, 0),
-    Position = UDim2.new(1, -460, 0, 0),
-  }, {
+  local tabBar = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(0, 460, 1, 0), Position = UDim2.new(1, -460, 0, 0)}, {
     make("UIListLayout", {
-      FillDirection = Enum.FillDirection.Horizontal,
-      Padding = UDim.new(0, 8),
-      HorizontalAlignment = Enum.HorizontalAlignment.Right,
-      SortOrder = Enum.SortOrder.LayoutOrder
+      FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8),
+      HorizontalAlignment = Enum.HorizontalAlignment.Right, SortOrder = Enum.SortOrder.LayoutOrder
     })
   })
   tabBar.Parent = header
 
-  local body = make("Frame", {
-    Name = "Body",
-    BackgroundColor3 = Theme.Background,
-    Size = UDim2.new(1, -16, 1, -58),
-    Position = UDim2.new(0, 8, 0, 50),
-  }, {
+  local body = make("Frame", {BackgroundColor3 = Theme.Background, Size = UDim2.new(1, -16, 1, -58), Position = UDim2.new(0, 8, 0, 50)}, {
     uiPadding(8, 8, 8, 8)
   })
   body.Parent = win
 
-  local tabContainer = make("Frame", {
-    Name = "TabContainer",
-    BackgroundTransparency = 1,
-    Size = UDim2.new(1, 0, 1, 0)
-  })
+  local tabContainer = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0)})
   tabContainer.Parent = body
 
   local window = {
-    _screen = screen,
-    _root = win,
-    _tabBar = tabBar,
-    _tabContainer = tabContainer,
-    _tabs = {},
-    _activeTab = nil,
-    Flags = self.Flags,
-    Notify = function(_, o) Neverlose:Notify(o) end
+    _screen = screen, _root = win, _tabBar = tabBar, _tabContainer = tabContainer,
+    _tabs = {}, _activeTab = nil, Flags = self.Flags, Notify = function(_, o) Neverlose:Notify(o) end
   }
 
-  -- dragging
   makeDraggable(win, header)
 
-  -- Tab factory
   function window:CreateTab(name)
     local tabBtn = make("TextButton", {
-      AutoButtonColor = false,
-      BackgroundColor3 = Theme.Sunken,
-      Size = UDim2.new(0, 100, 1, -8),
-      Position = UDim2.new(0, 0, 0, 4),
-      Text = name or "Tab",
-      Font = Enum.Font.GothamSemibold,
-      TextSize = 14,
-      TextColor3 = Theme.SubText
-    }, {
-      uiCorner(8),
-      uiStroke(Theme.Border, 1, 0.15)
-    })
+      AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(0, 100, 1, -8), Position = UDim2.new(0, 0, 0, 4),
+      Text = name or "Tab", Font = Enum.Font.GothamSemibold, TextSize = 14, TextColor3 = Theme.SubText
+    }, { uiCorner(8), uiStroke(Theme.Border, 1, 0.15) })
     tabBtn.Parent = tabBar
 
     local page = make("ScrollingFrame", {
-      Active = true,
-      BackgroundTransparency = 1,
-      BorderSizePixel = 0,
-      Size = UDim2.new(1, 0, 1, 0),
-      CanvasSize = UDim2.new(0, 0, 0, 0),
-      ScrollBarThickness = 4,
-      Visible = false
+      Active = true, BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.new(1, 0, 1, 0),
+      CanvasSize = UDim2.new(0, 0, 0, 0), ScrollBarThickness = 4, Visible = false
     }, {
       make("UIListLayout", {
-        FillDirection = Enum.FillDirection.Horizontal,
-        HorizontalAlignment = Enum.HorizontalAlignment.Left,
-        VerticalAlignment = Enum.VerticalAlignment.Top,
-        Padding = UDim.new(0, 8),
-        SortOrder = Enum.SortOrder.LayoutOrder
+        FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Left,
+        VerticalAlignment = Enum.VerticalAlignment.Top, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder
       })
     })
     page.Parent = tabContainer
 
-    -- Two columns of sections feel closer to Neverlose
     local col1 = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(0.5, -4, 1, 0)}, {
-      make("UIListLayout", {
-        FillDirection = Enum.FillDirection.Vertical,
-        Padding = UDim.new(0, 8),
-        SortOrder = Enum.SortOrder.LayoutOrder
-      })
+      make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder})
     })
     local col2 = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(0.5, -4, 1, 0)}, {
-      make("UIListLayout", {
-        FillDirection = Enum.FillDirection.Vertical,
-        Padding = UDim.new(0, 8),
-        SortOrder = Enum.SortOrder.LayoutOrder
-      })
+      make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder})
     })
-    col1.Parent = page
-    col2.Parent = page
+    col1.Parent, col2.Parent = page, page
 
     local tab = {
-      _button = tabBtn,
-      _page = page,
-      _cols = {col1, col2},
-      _sectionCount = 0,
-      CreateSection = function(self, title)
-        self._sectionCount += 1
-        local parentCol = (self._sectionCount % 2 == 1) and self._cols[1] or self._cols[2]
-        local section = make("Frame", {
-          BackgroundColor3 = Theme.Surface,
-          Size = UDim2.new(1, 0, 0, 56),
-          AutomaticSize = Enum.AutomaticSize.Y
-        }, {
-          uiCorner(8),
-          uiStroke(Theme.Border, 1, 0.15),
-          uiPadding(12, 12, 12, 12),
-          make("UIListLayout", {
-            FillDirection = Enum.FillDirection.Vertical,
-            Padding = UDim.new(0, 8),
-            SortOrder = Enum.SortOrder.LayoutOrder
-          })
+      _button = tabBtn, _page = page, _cols = {col1, col2}, _sectionCount = 0
+    }
+
+    function tab:CreateSection(title)
+      self._sectionCount += 1
+      local parentCol = (self._sectionCount % 2 == 1) and self._cols[1] or self._cols[2]
+      local section = make("Frame", {BackgroundColor3 = Theme.Surface, Size = UDim2.new(1, 0, 0, 56), AutomaticSize = Enum.AutomaticSize.Y}, {
+        uiCorner(8), uiStroke(Theme.Border, 1, 0.15), uiPadding(12, 12, 12, 12),
+        make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder})
+      })
+      section.Parent = parentCol
+
+      local secTitle = make("TextLabel", {
+        BackgroundTransparency = 1, Font = Enum.Font.GothamSemibold, Text = title or "Section",
+        TextColor3 = Theme.Text, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, 0, 0, 18)
+      })
+      secTitle.Parent = section
+
+      local controls = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y}, {
+        make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder})
+      })
+      controls.Parent = section
+
+      local S = {}
+
+      function S:CreateButton(opt)
+        local btn = make("TextButton", {
+          AutoButtonColor = false, Text = opt.Name or "Button", Font = Enum.Font.Gotham, TextSize = 14,
+          TextColor3 = Theme.Text, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 0, 30)
+        }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
+        btn.Parent = controls
+        btn.MouseEnter:Connect(function() tween(btn, 0.1, {BackgroundColor3 = Theme.Surface}) end)
+        btn.MouseLeave:Connect(function() tween(btn, 0.1, {BackgroundColor3 = Theme.Sunken}) end)
+        btn.MouseButton1Click:Connect(function() if opt.Callback then task.spawn(opt.Callback) end end)
+        return { SetText = function(text) btn.Text = text end, Destroy = function() btn:Destroy() end }
+      end
+
+      function S:CreateToggle(opt)
+        local frame = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)})
+        frame.Parent = controls
+        local bg = make("TextButton", {AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 1, 0), Text = ""}, {
+          uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0)
         })
-        section.Parent = parentCol
-
-        local secTitle = make("TextLabel", {
-          BackgroundTransparency = 1,
-          Font = Enum.Font.GothamSemibold,
-          Text = title or "Section",
-          TextColor3 = Theme.Text,
-          TextSize = 15,
-          TextXAlignment = Enum.TextXAlignment.Left,
-          Size = UDim2.new(1, 0, 0, 18),
+        bg.Parent = frame
+        local lbl = make("TextLabel", {
+          BackgroundTransparency = 1, Text = opt.Name or "Toggle", Font = Enum.Font.Gotham, TextSize = 14,
+          TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Theme.Text, Size = UDim2.new(1, -54, 1, 0)
         })
-        secTitle.Parent = section
+        lbl.Parent = bg
+        local knob = make("Frame", {BackgroundColor3 = Theme.Bad, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0), Size = UDim2.new(0, 34, 0, 18)}, { uiCorner(9) })
+        knob.Parent = bg
+        local dot = make("Frame", {BackgroundColor3 = Color3.fromRGB(255,255,255), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 2, 0.5, 0), Size = UDim2.new(0, 14, 0, 14)}, { uiCorner(7) })
+        dot.Parent = knob
 
-        local controls = make("Frame", {
-          BackgroundTransparency = 1,
-          Size = UDim2.new(1, 0, 0, 0),
-          AutomaticSize = Enum.AutomaticSize.Y
-        }, {
-          make("UIListLayout", {
-            FillDirection = Enum.FillDirection.Vertical,
-            Padding = UDim.new(0, 6),
-            SortOrder = Enum.SortOrder.LayoutOrder
-          })
-        })
-        controls.Parent = section
+        local state = opt.Default == true
+        local flag = opt.Flag
+        local api
 
-        local S = {}
-
-        -- Component: Button
-        function S:CreateButton(opt)
-          -- opt: {Name, Callback}
-          local btn = make("TextButton", {
-            AutoButtonColor = false,
-            Text = opt.Name or "Button",
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextColor3 = Theme.Text,
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 0, 30)
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
-          btn.Parent = controls
-
-          btn.MouseEnter:Connect(function() tween(btn, 0.1, {BackgroundColor3 = Theme.Surface}) end)
-          btn.MouseLeave:Connect(function() tween(btn, 0.1, {BackgroundColor3 = Theme.Sunken}) end)
-          btn.MouseButton1Click:Connect(function() if opt.Callback then task.spawn(opt.Callback) end end)
-
-          local api = {
-            SetText = function(text) btn.Text = text end,
-            Destroy = function() btn:Destroy() end
-          }
-          return api
-        end
-
-        -- Component: Toggle
-        function S:CreateToggle(opt)
-          -- opt: {Name, Flag, Default=false, Callback}
-          local frame = make("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 30)
-          })
-          frame.Parent = controls
-
-          local bg = make("TextButton", {
-            AutoButtonColor = false,
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 1, 0),
-            Text = ""
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) })
-          bg.Parent = frame
-
-          local lbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = opt.Name or "Toggle",
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Theme.Text,
-            Size = UDim2.new(1, -54, 1, 0)
-          })
-          lbl.Parent = bg
-
-          local knob = make("Frame", {
-            BackgroundColor3 = Theme.Bad,
-            AnchorPoint = Vector2.new(1, 0.5),
-            Position = UDim2.new(1, -8, 0.5, 0),
-            Size = UDim2.new(0, 34, 0, 18)
-          }, { uiCorner(9) })
-          knob.Parent = bg
-
-          local dot = make("Frame", {
-            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            AnchorPoint = Vector2.new(0, 0.5),
-            Position = UDim2.new(0, 2, 0.5, 0),
-            Size = UDim2.new(0, 14, 0, 14)
-          }, { uiCorner(7) })
-          dot.Parent = knob
-
-          local state = opt.Default == true
-          local flag = opt.Flag
-          local function apply(v)
-            state = v and true or false
-            knob.BackgroundColor3 = state and Theme.Good or Theme.Bad
-            tween(dot, 0.12, {Position = state and UDim2.new(1, -16, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)}):Play()
-            if flag then
-              Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
-              Neverlose.Flags[flag].Value = state
-              Neverlose._flagObjects[flag] = api
-              Neverlose.Flags[flag].Changed:Fire(state)
-            end
-            if opt.Callback then task.spawn(opt.Callback, state) end
+        local function apply(v)
+          state = v and true or false
+          knob.BackgroundColor3 = state and Theme.Good or Theme.Bad
+          tween(dot, 0.12, {Position = state and UDim2.new(1, -16, 0.5, 0) or UDim2.new(0, 2, 0.5, 0)}):Play()
+          if flag then
+            Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
+            Neverlose.Flags[flag].Value = state
+            Neverlose._flagObjects[flag] = api
+            Neverlose.Flags[flag].Changed:Fire(state)
           end
-
-          bg.MouseButton1Click:Connect(function() apply(not state) end)
-          apply(state)
-
-          local api = {
-            Get = function() return state end,
-            Set = function(v) apply(v) end,
-            SetText = function(t) lbl.Text = t end,
-            Destroy = function() frame:Destroy() end
-          }
-          return api
+          if opt.Callback then task.spawn(opt.Callback, state) end
         end
 
-        -- Component: Slider
-        function S:CreateSlider(opt)
-          -- opt: {Name, Range={0,100}, Increment=1, Suffix, Default, Flag, Callback}
-          local name = opt.Name or "Slider"
-          local min, max = opt.Range and opt.Range[1] or 0, opt.Range and opt.Range[2] or 100
-          local increment = opt.Increment or 1
-          local suffix = opt.Suffix or ""
-          local default = opt.Default or min
-          local flag = opt.Flag
+        bg.MouseButton1Click:Connect(function() apply(not state) end)
+        api = { Get = function() return state end, Set = function(v) apply(v) end, SetText = function(t) lbl.Text = t end, Destroy = function() frame:Destroy() end }
+        apply(state)
+        return api
+      end
 
-          local frame = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 46)})
-          frame.Parent = controls
+      function S:CreateSlider(opt)
+        local name = opt.Name or "Slider"
+        local min, max = opt.Range and opt.Range[1] or 0, opt.Range and opt.Range[2] or 100
+        local increment = opt.Increment or 1
+        local suffix = opt.Suffix or ""
+        local default = opt.Default or min
+        local flag = opt.Flag
 
-          local top = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 18)})
-          top.Parent = frame
+        local frame = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 46)}); frame.Parent = controls
+        local top = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 18)}); top.Parent = frame
+        local lbl = make("TextLabel", {BackgroundTransparency = 1, Text = name, Font = Enum.Font.Gotham, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Theme.Text, Size = UDim2.new(0.5, 0, 1, 0)}); lbl.Parent = top
+        local valLbl = make("TextLabel", {BackgroundTransparency = 1, Text = "", Font = Enum.Font.Gotham, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Theme.SubText, Size = UDim2.new(0.5, 0, 1, 0), Position = UDim2.new(0.5, 0, 0, 0)}); valLbl.Parent = top
+        local bar = make("Frame", {BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 0, 20)}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) }); bar.Parent = frame
+        local fill = make("Frame", {BackgroundColor3 = Theme.Accent, Size = UDim2.new(0, 0, 1, 0)}, { uiCorner(6) }); fill.Parent = bar
 
-          local lbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = name,
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Theme.Text,
-            Size = UDim2.new(0.5, 0, 1, 0),
-          })
-          lbl.Parent = top
+        local dragging = false
+        local value = default
+        local api
 
-          local valLbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = "",
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Right,
-            TextColor3 = Theme.SubText,
-            Size = UDim2.new(0.5, 0, 1, 0),
-            Position = UDim2.new(0.5, 0, 0, 0)
-          })
-          valLbl.Parent = top
+        local function setVal(v, fromInput)
+          v = math.clamp(v, min, max); v = round(v, increment); value = v
+          local pct = (v - min) / (max - min)
+          tween(fill, 0.08, {Size = UDim2.new(pct, 0, 1, 0)}):Play()
+          valLbl.Text = tostring(v) .. (suffix ~= "" and (" " .. suffix) or "")
+          if flag then
+            Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
+            Neverlose.Flags[flag].Value = value
+            Neverlose._flagObjects[flag] = api
+            if not fromInput then Neverlose.Flags[flag].Changed:Fire(value) end
+          end
+          if opt.Callback then task.spawn(opt.Callback, value) end
+        end
 
-          local bar = make("Frame", {
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 0, 20)
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
-          bar.Parent = frame
+        local function updateFromX(x)
+          local rel = (x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X
+          setVal(min + (max - min) * math.clamp(rel, 0, 1), true)
+        end
 
-          local fill = make("Frame", {
-            BackgroundColor3 = Theme.Accent,
-            Size = UDim2.new(0, 0, 1, 0)
-          }, { uiCorner(6) })
-          fill.Parent = bar
+        bar.InputBegan:Connect(function(input)
+          if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true; updateFromX(input.Position.X) end
+        end)
+        UserInputService.InputChanged:Connect(function(input)
+          if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then updateFromX(input.Position.X) end
+        end)
+        UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
 
+        api = { Get = function() return value end, Set = function(v) setVal(v) end, SetText = function(t) lbl.Text = t end, Destroy = function() frame:Destroy() end }
+        setVal(default)
+        return api
+      end
+
+      function S:CreateDropdown(opt)
+        local name = opt.Name or "Dropdown"
+        local options = opt.Options or {}
+        local flag = opt.Flag
+        local value = opt.Default or (options[1] or "")
+        local holder = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)}); holder.Parent = controls
+        local bg = make("TextButton", {AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 1, 0), Text = ""}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) }); bg.Parent = holder
+        local lbl = make("TextLabel", {BackgroundTransparency = 1, Text = name .. ": " .. tostring(value), Font = Enum.Font.Gotham, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Theme.Text, Size = UDim2.new(1, 0, 1, 0)}); lbl.Parent = bg
+
+        local listOpen = false
+        local list = make("Frame", {BackgroundColor3 = Theme.Surface, Position = UDim2.new(0, 0, 1, 6), Size = UDim2.new(1, 0, 0, 0), Visible = false}, {
+          uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(8, 8, 8, 8),
+          make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder})
+        })
+        list.Parent = holder
+
+        local api
+        local function setFlag()
+          if flag then
+            Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
+            Neverlose.Flags[flag].Value = value
+            Neverlose._flagObjects[flag] = api
+            Neverlose.Flags[flag].Changed:Fire(value)
+          end
+        end
+
+        local function populate()
+          for _, child in ipairs(list:GetChildren()) do
+            if child:IsA("TextButton") or child.Name == "OptionRow" then child:Destroy() end
+          end
+          for _, optName in ipairs(options) do
+            local optBtn = make("TextButton", {
+              AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 0, 28),
+              Text = optName, Font = Enum.Font.Gotham, TextSize = 14, TextColor3 = Theme.Text
+            }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
+            optBtn.Parent = list
+            optBtn.MouseButton1Click:Connect(function()
+              value = optName
+              lbl.Text = name .. ": " .. tostring(value)
+              setFlag()
+              if listOpen then
+                listOpen = false
+                local tw = tween(list, 0.12, {Size = UDim2.new(1, 0, 0, 0)}); tw:Play(); tw.Completed:Wait()
+                list.Visible = false
+              end
+              if opt.Callback then task.spawn(opt.Callback, value) end
+            end)
+          end
+        end
+
+        local function openList()
+          if listOpen then return end
+          listOpen = true; list.Visible = true
+          tween(list, 0.12, {Size = UDim2.new(1, 0, 0, math.min(200, #options * 34 + 16))}):Play()
+        end
+        local function closeList()
+          if not listOpen then return end
+          listOpen = false
+          local tw = tween(list, 0.12, {Size = UDim2.new(1, 0, 0, 0)}); tw:Play(); tw.Completed:Wait(); list.Visible = false
+        end
+
+        bg.MouseButton1Click:Connect(function() if listOpen then closeList() else openList() end end)
+        populate()
+        setFlag()
+
+        api = {
+          Get = function() return value end,
+          Set = function(v)
+            if table.find(options, v) then
+              value = v; lbl.Text = name .. ": " .. tostring(value); setFlag()
+              if opt.Callback then task.spawn(opt.Callback, value) end
+            end
+          end,
+          SetOptions = function(opts) options = opts or {}; populate() end,
+          Destroy = function() holder:Destroy() end
+        }
+        return api
+      end
+
+      function S:CreateMultiDropdown(opt)
+        local name = opt.Name or "MultiDropdown"
+        local options = opt.Options or {}
+        local selected = {}
+        if type(opt.Default) == "table" then for _, v in ipairs(opt.Default) do selected[v] = true end end
+        local flag = opt.Flag
+
+        local holder = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)}); holder.Parent = controls
+        local bg = make("TextButton", {AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 1, 0), Text = ""}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) }); bg.Parent = holder
+
+        local function selectedList()
+          local t = {}
+          for _, optName in ipairs(options) do if selected[optName] then table.insert(t, optName) end end
+          if #t == 0 then return "None" end
+          return table.concat(t, ", ")
+        end
+
+        local lbl = make("TextLabel", {
+          BackgroundTransparency = 1, Text = name .. ": " .. selectedList(), Font = Enum.Font.Gotham, TextSize = 14,
+          TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Theme.Text, Size = UDim2.new(1, 0, 1, 0)
+        })
+        lbl.Parent = bg
+
+        local listOpen = false
+        local list = make("Frame", {BackgroundColor3 = Theme.Surface, Position = UDim2.new(0, 0, 1, 6), Size = UDim2.new(1, 0, 0, 0), Visible = false}, {
+          uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(8, 8, 8, 8),
+          make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder})
+        })
+        list.Parent = holder
+
+        local api
+        local function fireFlag()
+          if flag then
+            local val = {}
+            for _, optName in ipairs(options) do if selected[optName] then table.insert(val, optName) end end
+            Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
+            Neverlose.Flags[flag].Value = val
+            Neverlose._flagObjects[flag] = api
+            Neverlose.Flags[flag].Changed:Fire(val)
+          end
+        end
+
+        local function populate()
+          for _, child in ipairs(list:GetChildren()) do
+            if child:IsA("Frame") and child.Name == "OptionRow" then child:Destroy() end
+            if child:IsA("TextButton") then child:Destroy() end
+          end
+          for _, optName in ipairs(options) do
+            local row = make("Frame", {Name = "OptionRow", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 28)})
+            row.Parent = list
+            local box = make("TextButton", {AutoButtonColor = false, BackgroundColor3 = selected[optName] and Theme.Accent or Theme.Sunken, Text = "", Size = UDim2.new(0, 28, 1, 0)}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
+            box.Parent = row
+            local nameLbl = make("TextLabel", {
+              BackgroundTransparency = 1, Text = optName, Font = Enum.Font.Gotham, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left,
+              TextColor3 = Theme.Text, Position = UDim2.new(0, 36, 0, 0), Size = UDim2.new(1, -36, 1, 0)
+            })
+            nameLbl.Parent = row
+
+            box.MouseButton1Click:Connect(function()
+              selected[optName] = not selected[optName]
+              box.BackgroundColor3 = selected[optName] and Theme.Accent or Theme.Sunken
+              lbl.Text = name .. ": " .. selectedList()
+              fireFlag()
+              if opt.Callback then
+                local out = {}
+                for _, v in ipairs(options) do if selected[v] then table.insert(out, v) end end
+                task.spawn(opt.Callback, out)
+              end
+            end)
+          end
+        end
+
+        local function openList()
+          if listOpen then return end
+          listOpen = true; list.Visible = true
+          tween(list, 0.12, {Size = UDim2.new(1, 0, 0, math.min(220, #options * 34 + 16))}):Play()
+        end
+        local function closeList()
+          if not listOpen then return end
+          listOpen = false
+          local tw = tween(list, 0.12, {Size = UDim2.new(1, 0, 0, 0)}); tw:Play(); tw.Completed:Wait(); list.Visible = false
+        end
+
+        bg.MouseButton1Click:Connect(function() if listOpen then closeList() else openList() end end)
+        populate(); lbl.Text = name .. ": " .. selectedList(); fireFlag()
+
+        api = {
+          Get = function()
+            local out = {}
+            for _, v in ipairs(options) do if selected[v] then table.insert(out, v) end end
+            return out
+          end,
+          Set = function(arr)
+            selected = {}
+            for _, v in ipairs(arr or {}) do selected[v] = true end
+            lbl.Text = name .. ": " .. selectedList()
+            populate()
+            fireFlag()
+            if opt.Callback then task.spawn(opt.Callback, api.Get()) end
+          end,
+          SetOptions = function(opts) options = opts or {}; populate(); lbl.Text = name .. ": " .. selectedList(); fireFlag() end,
+          Destroy = function() holder:Destroy() end
+        }
+        return api
+      end
+
+      function S:CreateKeybind(opt)
+        local name = opt.Name or "Keybind"
+        local flag = opt.Flag
+        local current = opt.Default or Enum.KeyCode.F
+
+        local frame = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)}); frame.Parent = controls
+        local bg = make("TextButton", {AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 1, 0), Text = ""}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) }); bg.Parent = frame
+        local lbl = make("TextLabel", {BackgroundTransparency = 1, Text = name .. ": " .. current.Name, Font = Enum.Font.Gotham, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Theme.Text, Size = UDim2.new(1, 0, 1, 0)}); lbl.Parent = bg
+
+        local api
+        local function setKey(kc)
+          current = kc
+          lbl.Text = name .. ": " .. (current and current.Name or "None")
+          if flag then
+            Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
+            Neverlose.Flags[flag].Value = current
+            Neverlose._flagObjects[flag] = api
+            Neverlose.Flags[flag].Changed:Fire(current)
+          end
+        end
+
+        bg.MouseButton1Click:Connect(function()
+          lbl.Text = name .. ": [press key]"
+          local conn
+          conn = UserInputService.InputBegan:Connect(function(input, gp)
+            if gp then return end
+            if input.UserInputType == Enum.UserInputType.Keyboard then
+              setKey(input.KeyCode); if conn then conn:Disconnect() end
+            elseif input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+              setKey((input.UserInputType == Enum.UserInputType.MouseButton1) and Enum.KeyCode.Button1 or Enum.KeyCode.Button2)
+              if conn then conn:Disconnect() end
+            end
+          end)
+        end)
+
+        local pressedConn = UserInputService.InputBegan:Connect(function(input, gp)
+          if gp then return end
+          if current and input.KeyCode == current then if opt.Callback then task.spawn(opt.Callback, true) end end
+        end)
+        table.insert(Neverlose._connections, pressedConn)
+
+        api = { Get = function() return current end, Set = function(kc) setKey(kc) end, Destroy = function() frame:Destroy() end }
+        setKey(current)
+        return api
+      end
+
+      function S:CreateColorPicker(opt)
+        local name = opt.Name or "Color"
+        local flag = opt.Flag
+        local current = opt.Default or Color3.fromRGB(0, 170, 255)
+
+        local holder = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)}); holder.Parent = controls
+        local bg = make("TextButton", {AutoButtonColor = false, BackgroundColor3 = Theme.Sunken, Size = UDim2.new(1, 0, 1, 0), Text = ""}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) }); bg.Parent = holder
+        local preview = make("Frame", {BackgroundColor3 = current, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0), Size = UDim2.new(0, 28, 0, 16)}, { uiCorner(4), uiStroke(Theme.Border, 1, 0.15) }); preview.Parent = bg
+        local lbl = make("TextLabel", {BackgroundTransparency = 1, Text = name, Font = Enum.Font.Gotham, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Theme.Text, Size = UDim2.new(1, -40, 1, 0)}); lbl.Parent = bg
+
+        local panel = make("Frame", {BackgroundColor3 = Theme.Surface, Position = UDim2.new(0, 0, 1, 6), Size = UDim2.new(1, 0, 0, 0), Visible = false}, {
+          uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 10, 10, 10),
+          make("UIListLayout", {FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder})
+        })
+        panel.Parent = holder
+
+        local function makeChannel(tag, init)
+          local fr = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 28)})
+          local lab = make("TextLabel", {BackgroundTransparency = 1, Size = UDim2.new(0, 24, 1, 0), Text = tag, Font = Enum.Font.Gotham, TextSize = 14, TextColor3 = Theme.SubText}); lab.Parent = fr
+          local bar = make("Frame", {BackgroundColor3 = Theme.Sunken, Position = UDim2.new(0, 30, 0, 4), Size = UDim2.new(1, -30, 0, 20)}, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) }); bar.Parent = fr
+          local fill = make("Frame", {BackgroundColor3 = Theme.Accent, Size = UDim2.new(init/255, 0, 1, 0)}, { uiCorner(6) }); fill.Parent = bar
+
+          local value = init
           local dragging = false
-          local value = default
-
-          local function setVal(v, fromInput)
-            v = math.clamp(v, min, max)
-            v = round(v, increment)
-            value = v
-            local pct = (v - min) / (max - min)
-            tween(fill, 0.08, {Size = UDim2.new(pct, 0, 1, 0)}):Play()
-            valLbl.Text = tostring(v) .. (suffix and (" " .. suffix) or "")
-            if flag then
-              Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
-              Neverlose.Flags[flag].Value = value
-              Neverlose._flagObjects[flag] = api
-              if not fromInput then Neverlose.Flags[flag].Changed:Fire(value) end
-            end
-            if opt.Callback then task.spawn(opt.Callback, value) end
-          end
-
-          local function updateFromX(x)
-            local rel = (x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X
-            setVal(min + (max - min) * math.clamp(rel, 0, 1), true)
-          end
-
+          local function setv(v) value = math.clamp(round(v, 1), 0, 255); tween(fill, 0.08, {Size = UDim2.new(value/255, 0, 1, 0)}):Play(); return value end
           bar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
-              dragging = true
-              updateFromX(input.Position.X)
+              dragging = true; local rel = (input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X; setv(rel * 255)
             end
           end)
           UserInputService.InputChanged:Connect(function(input)
             if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-              updateFromX(input.Position.X)
+              local rel = (input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X; setv(rel * 255)
             end
           end)
-          UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-              dragging = false
-            end
-          end)
+          UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
 
-          setVal(default)
-
-          local api = {
-            Get = function() return value end,
-            Set = function(v) setVal(v) end,
-            SetText = function(t) lbl.Text = t end,
-            Destroy = function() frame:Destroy() end
-          }
-          return api
+          fr.Parent = panel
+          return function() return value end, function(v) setv(v) end
         end
 
-        -- Component: Dropdown (single)
-        function S:CreateDropdown(opt)
-          -- opt: {Name, Options={}, Default, Flag, Callback}
-          local name = opt.Name or "Dropdown"
-          local options = opt.Options or {}
-          local flag = opt.Flag
-          local value = opt.Default or (options[1] or "")
+        local r, g, b = math.floor(current.R * 255), math.floor(current.G * 255), math.floor(current.B * 255)
+        local getR, setR = makeChannel("R", r)
+        local getG, setG = makeChannel("G", g)
+        local getB, setB = makeChannel("B", b)
 
-          local holder = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)})
-          holder.Parent = controls
-
-          local bg = make("TextButton", {
-            AutoButtonColor = false,
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 1, 0),
-            Text = "",
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) })
-          bg.Parent = holder
-
-          local lbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = name .. ": " .. tostring(value),
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Theme.Text,
-            Size = UDim2.new(1, 0, 1, 0),
-          })
-          lbl.Parent = bg
-
-          local listOpen = false
-          local list = make("Frame", {
-            BackgroundColor3 = Theme.Surface,
-            Position = UDim2.new(0, 0, 1, 6),
-            Size = UDim2.new(1, 0, 0, 0),
-            Visible = false
-          }, {
-            uiCorner(6),
-            uiStroke(Theme.Border, 1, 0.15),
-            uiPadding(8, 8, 8, 8),
-            make("UIListLayout", {
-              FillDirection = Enum.FillDirection.Vertical,
-              Padding = UDim.new(0, 6),
-              SortOrder = Enum.SortOrder.LayoutOrder
-            })
-          })
-          list.Parent = holder
-
-          local function populate()
-            list:ClearAllChildren()
-            list:AddItem(uiCorner(6)) -- to keep corner
-            list:AddItem(uiStroke(Theme.Border, 1, 0.15))
-            list:AddItem(uiPadding(8, 8, 8, 8))
-            for _, optName in ipairs(options) do
-              local optBtn = make("TextButton", {
-                AutoButtonColor = false,
-                BackgroundColor3 = Theme.Sunken,
-                Size = UDim2.new(1, 0, 0, 28),
-                Text = optName,
-                Font = Enum.Font.Gotham,
-                TextSize = 14,
-                TextColor3 = Theme.Text
-              }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
-              optBtn.Parent = list
-              optBtn.MouseButton1Click:Connect(function()
-                value = optName
-                lbl.Text = name .. ": " .. tostring(value)
-                setFlag()
-                closeList()
-                if opt.Callback then task.spawn(opt.Callback, value) end
-              end)
-            end
+        local api
+        local function apply()
+          local c = Color3.fromRGB(getR(), getG(), getB())
+          preview.BackgroundColor3 = c
+          current = c
+          if flag then
+            Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
+            Neverlose.Flags[flag].Value = current
+            Neverlose._flagObjects[flag] = api
+            Neverlose.Flags[flag].Changed:Fire(current)
           end
-
-          local function openList()
-            if listOpen then return end
-            listOpen = true
-            list.Visible = true
-            tween(list, 0.12, {Size = UDim2.new(1, 0, 0, math.min(200, #options * 34 + 16))}):Play()
-          end
-
-          function closeList()
-            if not listOpen then return end
-            listOpen = false
-            local tw = tween(list, 0.12, {Size = UDim2.new(1, 0, 0, 0)})
-            tw:Play()
-            tw.Completed:Wait()
-            list.Visible = false
-          end
-
-          function setFlag()
-            if flag then
-              Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
-              Neverlose.Flags[flag].Value = value
-              Neverlose._flagObjects[flag] = api
-              Neverlose.Flags[flag].Changed:Fire(value)
-            end
-          end
-
-          bg.MouseButton1Click:Connect(function()
-            if listOpen then closeList() else openList() end
-          end)
-          populate()
-          setFlag()
-
-          local api = {
-            Get = function() return value end,
-            Set = function(v)
-              if table.find(options, v) then
-                value = v
-                lbl.Text = name .. ": " .. tostring(value)
-                setFlag()
-                if opt.Callback then task.spawn(opt.Callback, value) end
-              end
-            end,
-            SetOptions = function(opts)
-              options = opts or {}
-              populate()
-            end,
-            Destroy = function() holder:Destroy() end
-          }
-          return api
+          if opt.Callback then task.spawn(opt.Callback, current) end
         end
 
-        -- Component: MultiDropdown
-        function S:CreateMultiDropdown(opt)
-          -- opt: {Name, Options={}, Default={}, Flag, Callback(selectedTable)}
-          local name = opt.Name or "MultiDropdown"
-          local options = opt.Options or {}
-          local selected = {}
-          if type(opt.Default) == "table" then
-            for _, v in ipairs(opt.Default) do selected[v] = true end
-          end
-          local flag = opt.Flag
+        RunService.Heartbeat:Connect(function() if panel.Visible then apply() end end)
 
-          local holder = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)})
-          holder.Parent = controls
+        local open = false
+        local function openPanel() if open then return end open = true; panel.Visible = true; tween(panel, 0.12, {Size = UDim2.new(1, 0, 0, 120)}):Play() end
+        local function closePanel() if not open then return end open = false; local tw = tween(panel, 0.12, {Size = UDim2.new(1, 0, 0, 0)}); tw:Play(); tw.Completed:Wait(); panel.Visible = false end
+        bg.MouseButton1Click:Connect(function() if open then closePanel() else openPanel() end end)
+        apply()
 
-          local bg = make("TextButton", {
-            AutoButtonColor = false,
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 1, 0),
-            Text = "",
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) })
-          bg.Parent = holder
-
-          local function selectedList()
-            local t = {}
-            for _, optName in ipairs(options) do
-              if selected[optName] then table.insert(t, optName) end
-            end
-            if #t == 0 then return "None" end
-            return table.concat(t, ", ")
-          end
-
-          local lbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = name .. ": " .. selectedList(),
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Theme.Text,
-            Size = UDim2.new(1, 0, 1, 0),
-          })
-          lbl.Parent = bg
-
-          local listOpen = false
-          local list = make("Frame", {
-            BackgroundColor3 = Theme.Surface,
-            Position = UDim2.new(0, 0, 1, 6),
-            Size = UDim2.new(1, 0, 0, 0),
-            Visible = false
-          }, {
-            uiCorner(6),
-            uiStroke(Theme.Border, 1, 0.15),
-            uiPadding(8, 8, 8, 8),
-            make("UIListLayout", {
-              FillDirection = Enum.FillDirection.Vertical,
-              Padding = UDim.new(0, 6),
-              SortOrder = Enum.SortOrder.LayoutOrder
-            })
-          })
-          list.Parent = holder
-
-          local function fireFlag()
-            if flag then
-              local val = {}
-              for _, optName in ipairs(options) do
-                if selected[optName] then table.insert(val, optName) end
-              end
-              Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
-              Neverlose.Flags[flag].Value = val
-              Neverlose._flagObjects[flag] = api
-              Neverlose.Flags[flag].Changed:Fire(val)
-            end
-          end
-
-          local function populate()
-            list:ClearAllChildren()
-            list:AddItem(uiCorner(6))
-            list:AddItem(uiStroke(Theme.Border, 1, 0.15))
-            list:AddItem(uiPadding(8, 8, 8, 8))
-            for _, optName in ipairs(options) do
-              local row = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 28)})
-              row.Parent = list
-
-              local box = make("TextButton", {
-                AutoButtonColor = false,
-                BackgroundColor3 = selected[optName] and Theme.Accent or Theme.Sunken,
-                Text = "",
-                Size = UDim2.new(0, 28, 1, 0)
-              }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
-              box.Parent = row
-
-              local nameLbl = make("TextLabel", {
-                BackgroundTransparency = 1,
-                Text = optName,
-                Font = Enum.Font.Gotham,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                TextColor3 = Theme.Text,
-                Position = UDim2.new(0, 36, 0, 0),
-                Size = UDim2.new(1, -36, 1, 0),
-              })
-              nameLbl.Parent = row
-
-              box.MouseButton1Click:Connect(function()
-                selected[optName] = not selected[optName]
-                box.BackgroundColor3 = selected[optName] ? Theme.Accent : Theme.Sunken
-                lbl.Text = name .. ": " .. selectedList()
-                fireFlag()
-                if opt.Callback then
-                  local out = {}
-                  for _, v in ipairs(options) do if selected[v] then table.insert(out, v) end end
-                  task.spawn(opt.Callback, out)
-                end
-              end)
-            end
-          end
-
-          local function openList()
-            if listOpen then return end
-            listOpen = true
-            list.Visible = true
-            tween(list, 0.12, {Size = UDim2.new(1, 0, 0, math.min(220, #options * 34 + 16))}):Play()
-          end
-
-          local function closeList()
-            if not listOpen then return end
-            listOpen = false
-            local tw = tween(list, 0.12, {Size = UDim2.new(1, 0, 0, 0)})
-            tw:Play()
-            tw.Completed:Wait()
-            list.Visible = false
-          end
-
-          bg.MouseButton1Click:Connect(function()
-            if listOpen then closeList() else openList() end
-          end)
-
-          populate()
-          lbl.Text = name .. ": " .. selectedList()
-          fireFlag()
-
-          local api = {
-            Get = function()
-              local out = {}
-              for _, v in ipairs(options) do if selected[v] then table.insert(out, v) end end
-              return out
-            end,
-            Set = function(arr)
-              selected = {}
-              for _, v in ipairs(arr or {}) do selected[v] = true end
-              lbl.Text = name .. ": " .. selectedList()
-              populate()
-              fireFlag()
-              if opt.Callback then task.spawn(opt.Callback, api.Get()) end
-            end,
-            SetOptions = function(opts)
-              options = opts or {}
-              populate()
-              lbl.Text = name .. ": " .. selectedList()
-              fireFlag()
-            end,
-            Destroy = function() holder:Destroy() end
-          }
-          return api
-        end
-
-        -- Component: Keybind
-        function S:CreateKeybind(opt)
-          -- opt: {Name, Flag, Default = Enum.KeyCode.F, Callback(isPressed)}
-          local name = opt.Name or "Keybind"
-          local flag = opt.Flag
-          local current = opt.Default or Enum.KeyCode.F
-
-          local frame = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)})
-          frame.Parent = controls
-
-          local bg = make("TextButton", {
-            AutoButtonColor = false,
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 1, 0),
-            Text = "",
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) })
-          bg.Parent = frame
-
-          local lbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = name .. ": " .. current.Name,
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Theme.Text,
-            Size = UDim2.new(1, 0, 1, 0),
-          })
-          lbl.Parent = bg
-
-          local listening = false
-
-          local function setKey(kc)
-            current = kc
-            lbl.Text = name .. ": " .. (current and current.Name or "None")
-            if flag then
-              Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
-              Neverlose.Flags[flag].Value = current
-              Neverlose._flagObjects[flag] = api
-              Neverlose.Flags[flag].Changed:Fire(current)
-            end
-          end
-
-          bg.MouseButton1Click:Connect(function()
-            listening = true
-            lbl.Text = name .. ": [press key]"
-            local conn
-            conn = UserInputService.InputBegan:Connect(function(input, gp)
-              if gp then return end
-              if input.UserInputType == Enum.UserInputType.Keyboard then
-                setKey(input.KeyCode)
-                listening = false
-                if conn then conn:Disconnect() end
-              elseif input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
-                -- allow mouse buttons too
-                setKey((input.UserInputType == Enum.UserInputType.MouseButton1) and Enum.KeyCode.Button1 or Enum.KeyCode.Button2)
-                listening = false
-                if conn then conn:Disconnect() end
-              end
-            end)
-          end)
-
-          local pressedConn = UserInputService.InputBegan:Connect(function(input, gp)
-            if gp then return end
-            if current and input.KeyCode == current then
-              if opt.Callback then task.spawn(opt.Callback, true) end
-            end
-          end)
-          table.insert(Neverlose._connections, pressedConn)
-
-          setKey(current)
-
-          local api = {
-            Get = function() return current end,
-            Set = function(kc) setKey(kc) end,
-            Destroy = function() frame:Destroy() end
-          }
-          return api
-        end
-
-        -- Component: ColorPicker (RGB sliders)
-        function S:CreateColorPicker(opt)
-          -- opt: {Name, Default=Color3, Flag, Callback(Color3)}
-          local name = opt.Name or "Color"
-          local flag = opt.Flag
-          local current = opt.Default or Color3.fromRGB(0, 170, 255)
-
-          local holder = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30)})
-          holder.Parent = controls
-
-          local bg = make("TextButton", {
-            AutoButtonColor = false,
-            BackgroundColor3 = Theme.Sunken,
-            Size = UDim2.new(1, 0, 1, 0),
-            Text = "",
-          }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15), uiPadding(10, 0, 10, 0) })
-          bg.Parent = holder
-
-          local preview = make("Frame", {
-            BackgroundColor3 = current,
-            AnchorPoint = Vector2.new(1, 0.5),
-            Position = UDim2.new(1, -8, 0.5, 0),
-            Size = UDim2.new(0, 28, 0, 16)
-          }, { uiCorner(4), uiStroke(Theme.Border, 1, 0.15) })
-          preview.Parent = bg
-
-          local lbl = make("TextLabel", {
-            BackgroundTransparency = 1,
-            Text = name,
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Theme.Text,
-            Size = UDim2.new(1, -40, 1, 0),
-          })
-          lbl.Parent = bg
-
-          local panel = make("Frame", {
-            BackgroundColor3 = Theme.Surface,
-            Position = UDim2.new(0, 0, 1, 6),
-            Size = UDim2.new(1, 0, 0, 0),
-            Visible = false
-          }, {
-            uiCorner(6),
-            uiStroke(Theme.Border, 1, 0.15),
-            uiPadding(10, 10, 10, 10),
-            make("UIListLayout", {
-              FillDirection = Enum.FillDirection.Vertical,
-              Padding = UDim.new(0, 8),
-              SortOrder = Enum.SortOrder.LayoutOrder
-            })
-          })
-          panel.Parent = holder
-
-          local function makeChannel(name, init)
-            local fr = make("Frame", {BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 28)})
-            local lab = make("TextLabel", {
-              BackgroundTransparency = 1, Size = UDim2.new(0, 24, 1, 0),
-              Text = name, Font = Enum.Font.Gotham, TextSize = 14, TextColor3 = Theme.SubText
-            })
-            lab.Parent = fr
-            local bar = make("Frame", {
-              BackgroundColor3 = Theme.Sunken, Position = UDim2.new(0, 30, 0, 4),
-              Size = UDim2.new(1, -30, 0, 20)
-            }, { uiCorner(6), uiStroke(Theme.Border, 1, 0.15) })
-            bar.Parent = fr
-            local fill = make("Frame", {BackgroundColor3 = Theme.Accent, Size = UDim2.new(init/255, 0, 1, 0)}, { uiCorner(6) })
-            fill.Parent = bar
-
-            local value = init
-            local dragging = false
-            local function setv(v)
-              value = math.clamp(round(v, 1), 0, 255)
-              tween(fill, 0.08, {Size = UDim2.new(value/255, 0, 1, 0)}):Play()
-              return value
-            end
-            bar.InputBegan:Connect(function(input)
-              if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = true
-                local rel = (input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X
-                setv(rel * 255)
-              end
-            end)
-            UserInputService.InputChanged:Connect(function(input)
-              if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                local rel = (input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X
-                setv(rel * 255)
-              end
-            end)
-            UserInputService.InputEnded:Connect(function(input)
-              if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = false
-              end
-            end)
-
-            fr.Parent = panel
-            return function() return value end, function(v) setv(v) end
-          end
-
-          local r, g, b = math.floor(current.R * 255), math.floor(current.G * 255), math.floor(current.B * 255)
-          local getR, setR = makeChannel("R", r)
-          local getG, setG = makeChannel("G", g)
-          local getB, setB = makeChannel("B", b)
-
-          local function apply()
-            local c = Color3.fromRGB(getR(), getG(), getB())
-            preview.BackgroundColor3 = c
-            current = c
-            if flag then
-              Neverlose.Flags[flag] = Neverlose.Flags[flag] or {Changed = Instance.new("BindableEvent")}
-              Neverlose.Flags[flag].Value = current
-              Neverlose._flagObjects[flag] = api
-              Neverlose.Flags[flag].Changed:Fire(current)
-            end
-            if opt.Callback then task.spawn(opt.Callback, current) end
-          end
-
-          panel:GetPropertyChangedSignal("AbsoluteSize"):Connect(apply)
-          RunService.Heartbeat:Connect(function()
-            if panel.Visible then apply() end
-          end)
-
-          local open = false
-          local function openPanel()
-            if open then return end
-            open = true
-            panel.Visible = true
-            tween(panel, 0.12, {Size = UDim2.new(1, 0, 0, 120)}):Play()
-          end
-          local function closePanel()
-            if not open then return end
-            open = false
-            local tw = tween(panel, 0.12, {Size = UDim2.new(1, 0, 0, 0)})
-            tw:Play()
-            tw.Completed:Wait()
-            panel.Visible = false
-          end
-
-          bg.MouseButton1Click:Connect(function()
-            if open then closePanel() else openPanel() end
-          end)
-          apply()
-
-          local api = {
-            Get = function() return current end,
-            Set = function(c)
-              current = c
-              r = math.floor(c.R * 255); g = math.floor(c.G * 255); b = math.floor(c.B * 255)
-              setR(r); setG(g); setB(b)
-              apply()
-            end,
-            Destroy = function() holder:Destroy() end
-          }
-          return api
-        end
-
-        return S
+        api = { Get = function() return current end, Set = function(c) r = math.floor(c.R*255); g = math.floor(c.G*255); b = math.floor(c.B*255); setR(r); setG(g); setB(b); apply() end, Destroy = function() holder:Destroy() end }
+        return api
       end
-    }
+
+      return S
+    end
 
     local function activate()
       for _, t in pairs(window._tabs) do
         t._page.Visible = false
         tween(t._button, 0.1, {BackgroundColor3 = Theme.Sunken, TextColor3 = Theme.SubText}):Play()
       end
-      tab._page.Visible = true
+      page.Visible = true
       tween(tabBtn, 0.1, {BackgroundColor3 = Theme.AccentSoft, TextColor3 = Theme.Text}):Play()
       window._activeTab = tab
     end
-
     tabBtn.MouseButton1Click:Connect(activate)
     if not window._activeTab then activate() end
 
@@ -1153,15 +674,11 @@ function Neverlose:CreateWindow(cfg)
     return tab
   end
 
-  -- For external
   table.insert(self._windows, window)
-  self._notifHolder = self._notifHolder or nil
   return window
 end
 
--- Export
-getgenv = getgenv or function() return _G end
-local G = getgenv()
+-- Export (return the table)
+local G = (getgenv and getgenv()) or _G
 G.Neverlose = Neverlose
-_G.Neverlose = Neverlose
 return Neverlose

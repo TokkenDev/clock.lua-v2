@@ -1,5 +1,4 @@
 -- NeverLose UI Library
--- Place this in CoreGui as a LocalScript
 
 local NeverLoseUI = {}
 

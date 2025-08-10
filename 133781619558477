@@ -1,7 +1,7 @@
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/133781619558477.lua"))()
 
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/source'))()
-local Window = OrionLib:MakeWindow({Name = "clock.lua - SaKPDH - Test", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.loader"})
+local Window = OrionLib:MakeWindow({Name = "clock.lua - SaKPDH", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.loader"})
 local StealTab = Window:MakeTab({
     Name = "Steal",
     Icon = "rbxassetid://4483345998",

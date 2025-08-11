@@ -113,11 +113,11 @@ local function stealFunction(shits, ownbase, stolecount)
         else
             continue
         end
-    until Char:GetAttribute("Holding")
+    until Char:GetAttribute("Holding") or not shits.object:FindFirstChild("Character")
     repeat
         HRP.CFrame = bases[ownbase].Important.RobberyDeposit.CFrame
         task.wait()
-    until not Char:GetAttribute("Holding")
+    until not Char:GetAttribute("Holding") or shits.object.Part:FindFirstChild("ProximityPrompt")
     stolecount = stolecount + 1
     return stolecount
 end
@@ -147,7 +147,6 @@ local function stealAllShits(playername)
     local target = getBase(playername)
     local ownbase = getBase(LPlayer.Name)
     if target then
-        local oldplayerpos = HRP.CFrame
         for _, shits in getAllShits(target) do
             if Players:FindFirstChild(playername) then
                 stealFunction(shits, ownbase, 0)

@@ -40,7 +40,7 @@ LoaderTab:NewButton("Execute Script", function()
         end
     end)
     if not success then
-        Notifications:Notify("Game not supported, if this is an error please report it (console)!", 3, "error")
+        Notifications:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
         error("[clock.lua] "..tostring(game.PlaceId).." Not Supported, error: "..errormessage)
     end
 end)
@@ -64,8 +64,8 @@ end)
 -- Games --
 GamesTab:NewLabel("You can copy the link to other supported games here!", "center")
 
-local nwgamestable = {103889808775700}
 local gamestable = {112279762578792, 133781619558477}
+local nwgamestable = {103889808775700, 16991287194, 8571687919, 7979341445}
 
 GamesTab:NewLabel("Working Games", "center")
 for _, gameid in gamestable do
@@ -80,11 +80,11 @@ for _, gameid in gamestable do
     end)
 end
 
-GamesTab:NewLabel("Broken/TBA Games", "center")
+GamesTab:NewLabel("Broken/Planned Games", "center")
 for _, gameid in nwgamestable do
     local gamename = GetGameName(gameid)
     GamesTab:NewButton(gamename, function()
-        Notifications:Notify('"'..gamename..'"'.." is either broken or TBA, try again later!", 3, "error")
+        Notifications:Notify('"'..gamename..'"'.." is either broken or only planned, try again later!", 3, "error")
     end)
 end
 

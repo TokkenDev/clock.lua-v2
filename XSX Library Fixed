@@ -200,10 +200,9 @@ function library:UnlockFps(new) -- syn only
     end
 end
 
-local edge
 function library:Watermark(text)
     for i,v in pairs(CoreGuiService:GetChildren()) do
-        if v.Name == "watermark" then
+        if v.Name == "XSXwatermark" then
             v:Destroy()
         end
     end
@@ -213,7 +212,7 @@ function library:Watermark(text)
     local watermark = Instance.new("ScreenGui")
     local watermarkPadding = Instance.new("UIPadding")
     local watermarkLayout = Instance.new("UIListLayout")
-    edge = Instance.new("Frame")
+    local edge = Instance.new("Frame")
     local edgeCorner = Instance.new("UICorner")
     local background = Instance.new("Frame")
     local barFolder = Instance.new("Folder")
@@ -226,7 +225,7 @@ function library:Watermark(text)
     local waterPadding = Instance.new("UIPadding")
     local backgroundLayout = Instance.new("UIListLayout")
 
-    watermark.Name = "watermark"
+    watermark.Name = "XSXwatermark"
     watermark.Parent = CoreGuiService
     watermark.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
@@ -846,7 +845,7 @@ function library:Introduction()
     wait(.2)
     introduction:Destroy()
 end
-local screen
+
 function library:Init(key)
     for _,v in next, CoreGuiService:GetChildren() do
         if v.Name == "XSX" then
@@ -857,7 +856,7 @@ function library:Init(key)
     local title = library.title
     key = key or Enum.KeyCode.RightAlt
 
-    screen = Instance.new("ScreenGui")
+    local screen = Instance.new("ScreenGui")
     local edge = Instance.new("Frame")
     local edgeCorner = Instance.new("UICorner")
     local background = Instance.new("Frame")
@@ -3562,7 +3561,11 @@ function library:Init(key)
     end
     --
     function TabLibrary:Remove()
-        screen:Destroy()
+        for _,v in next, CoreGuiService:GetChildren() do
+            if v.Name == "XSX" or v.Name == "XSXwatermark" then
+                v:Destroy()
+            end
+        end
 
         return TabLibrary
     end

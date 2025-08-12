@@ -1,22 +1,13 @@
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/loader.lua"))() 
-
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/source'))()
-local Window = OrionLib:MakeWindow({Name = "clock.lua - Loader", HidePremium = false, SaveConfig = true, ConfigFolder = "clock.lua.loader"})
-local LoaderTab = Window:MakeTab({
-    Name = "Loader",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-local TestTab = Window:MakeTab({
-    Name = "Test Version",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-local GamesTab = Window:MakeTab({
-    Name = "Supported Games",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/XSX%20Library%20Fixed"))()
+local Watermark = library:Watermark("clock.lua | loader | v2.0.0 | " .. library:GetUsername())
+local Notifications = library:InitNotifications()
+local LoadingXSX = Notifications:Notify("Loading XSX Lib Fixed, please be patient.", 3, "information")
+library.title = "clock.lua"
+library:Introduction()
+local Init = library:Init()
+local LoaderTab = Init:NewTab("Loader")
+local TestTab = Init:NewTab("Test Version")
+local GamesTab = Init:NewTab("Games")
 
 -- Init --
 local TestToggle = false
@@ -37,60 +28,64 @@ local function GetGameName(gameid)
     end
 end
 
--- Tab Elements --
+-- Library Components --
 
 -- Loader --
-LoaderTab:AddButton({Name = "Execute Script", Callback = function()
-    OrionLib:Destroy()
-    if TestToggle == false then
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId)))()
-    else
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId).."experimental"))()
+LoaderTab:NewButton("Execute Script", function()
+    local success, errormessage = pcall(function()
+        if TestToggle == false then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId)))()
+        else
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId).."experimental"))()
+        end
+    end)
+    if not success then
+        Notifications:Notify("Game not supported, if this is an error please report it (console)!", 3, "error")
+        error("[clock.lua] "..tostring(game.PlaceId).." Not Supported, error: "..errormessage)
     end
-end})
+end)
 
-LoaderTab:AddLabel("Made with <3 by tokkendev")
+LoaderTab:NewLabel("Made with <3 by tokkendev", "center")
 
-LoaderTab:AddButton({Name = "Rejoin Server", Callback = function()
-    OrionLib:Destroy()
+LoaderTab:NewButton("Rejoin Server", function()
     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Player)
-end})
+end)
 
 -- Test Version --
-TestTab:AddParagraph("WARNING", "Test Versions can be extremely unstable, or not work at all. DO NOT report bugs if you're using the test version.")
+TestTab:NewLabel("Test Versions can be extremely unstable, or not work at all. DO NOT report bugs if you're using the test version.", "center")
 
-TestTab:AddToggle({Name = "Toggle Test Version",  Default = false,  Callback = function(bool)
+TestTab:NewToggle("Toggle Test Version", false, function(bool)
     TestToggle = bool
-    OrionLib:MakeNotification({
-        Name = "Toggled Test Version",
-        Content = "Hope you read the warning :)",
-        Image = "rbxassetid://4483345998",
-        Time = 6
-    })
-end})
+    if bool then
+        Notifications:Notify("Hope you read the warning :)", 3, "information")
+    end
+end)
 
 -- Games --
-GamesTab:AddLabel("You can switch to other supported games here!")
+GamesTab:NewLabel("You can copy the link to other supported games here!", "center")
 
-GamesTab:AddButton({Name = GetGameName(112279762578792), Callback = function()
-    OrionLib:Destroy()
-    TeleportService:Teleport(112279762578792, Player)
-end})
+local nwgamestable = {103889808775700}
+local gamestable = {112279762578792, 133781619558477}
 
-GamesTab:AddButton({Name = GetGameName(133781619558477), Callback = function()
-    OrionLib:Destroy()
-    TeleportService:Teleport(133781619558477, Player)
-end})
+GamesTab:NewLabel("Working Games", "center")
+for _, gameid in gamestable do
+    local gamename = GetGameName(gameid)
+    GamesTab:NewButton(gamename, function()
+        if setclipboard then
+            setclipboard("https://www.roblox.com/games/"..gameid.."/")
+            Notifications:Notify('Copied the game "'..gamename..'" to clipboard!', 3, "success")
+        else
+            Notifications:Notify("Pack it up and search the game urself, ur executor poo poo :)", 10, "error")
+        end
+    end)
+end
 
-GamesTab:AddButton({Name = GetGameName(103889808775700).." (Soon)", Callback = function()
-    OrionLib:MakeNotification({
-        Name = "hey",
-        Content = "coming soon schnawg ✌️",
-        Image = "rbxassetid://4483345998",
-        Time = 6
-    })
-    --OrionLib:Destroy()
-    --TeleportService:Teleport(103889808775700, Player)
-end})
+GamesTab:NewLabel("Broken/TBA Games", "center")
+for _, gameid in nwgamestable do
+    local gamename = GetGameName(gameid)
+    GamesTab:NewButton(gamename, function()
+        Notifications:Notify('"'..gamename..'"'.." is either broken or TBA, try again later!", 3, "error")
+    end)
+end
 
-OrionLib:Init()
+Notifications:Notify("Loaded XSX Lib Fixed", 3, "success")

@@ -3131,144 +3131,6 @@ function library:Init(key)
                 return SelectorFunctions
             end
 
-            -- Single-Select Dropdown
-            function Components:NewDropdown(name, options, callback)
-                local Dropdown = Instance.new("Frame")
-                Dropdown.Name = name
-                Dropdown.BackgroundTransparency = 1
-                Dropdown.Size = UDim2.new(1, 0, 0, 40)
-                Dropdown.Parent = page
-
-                local Label = Instance.new("TextLabel")
-                Label.Parent = Dropdown
-                Label.Size = UDim2.new(1, -10, 0, 20)
-                Label.BackgroundTransparency = 1
-                Label.Text = name
-                Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-                Label.TextXAlignment = Enum.TextXAlignment.Left
-                Label.Font = Enum.Font.Gotham
-                Label.TextSize = 14
-
-                local Selected = Instance.new("TextButton")
-                Selected.Parent = Dropdown
-                Selected.Position = UDim2.new(0, 0, 0, 20)
-                Selected.Size = UDim2.new(1, 0, 0, 20)
-                Selected.Text = "Select..."
-                Selected.Font = Enum.Font.Gotham
-                Selected.TextSize = 14
-                Selected.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                Selected.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-                local ListFrame = Instance.new("Frame")
-                ListFrame.Parent = Dropdown
-                ListFrame.Position = UDim2.new(0, 0, 0, 40)
-                ListFrame.Size = UDim2.new(1, 0, 0, #options * 20)
-                ListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-                ListFrame.Visible = false
-
-                local Layout = Instance.new("UIListLayout")
-                Layout.Parent = ListFrame
-                Layout.FillDirection = Enum.FillDirection.Vertical
-                Layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-                for _, opt in ipairs(options) do
-                    local OptButton = Instance.new("TextButton")
-                    OptButton.Parent = ListFrame
-                    OptButton.Size = UDim2.new(1, 0, 0, 20)
-                    OptButton.Text = tostring(opt)
-                    OptButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                    OptButton.Font = Enum.Font.Gotham
-                    OptButton.TextSize = 14
-                    OptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-                    OptButton.MouseButton1Click:Connect(function()
-                        Selected.Text = OptButton.Text
-                        ListFrame.Visible = false
-                        if callback then callback(opt) end
-                    end)
-                end
-
-                Selected.MouseButton1Click:Connect(function()
-                    ListFrame.Visible = not ListFrame.Visible
-                end)
-            end
-
-            -- Multi-Select Dropdown
-            function Components:NewMultiDropdown(name, options, callback)
-                local Dropdown = Instance.new("Frame")
-                Dropdown.Name = name
-                Dropdown.BackgroundTransparency = 1
-                Dropdown.Size = UDim2.new(1, 0, 0, 40)
-                Dropdown.Parent = page
-
-                local Label = Instance.new("TextLabel")
-                Label.Parent = Dropdown
-                Label.Size = UDim2.new(1, -10, 0, 20)
-                Label.BackgroundTransparency = 1
-                Label.Text = name
-                Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-                Label.TextXAlignment = Enum.TextXAlignment.Left
-                Label.Font = Enum.Font.Gotham
-                Label.TextSize = 14
-
-                local Selected = Instance.new("TextButton")
-                Selected.Parent = Dropdown
-                Selected.Position = UDim2.new(0, 0, 0, 20)
-                Selected.Size = UDim2.new(1, 0, 0, 20)
-                Selected.Text = "Select multiple..."
-                Selected.Font = Enum.Font.Gotham
-                Selected.TextSize = 14
-                Selected.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                Selected.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-                local ListFrame = Instance.new("Frame")
-                ListFrame.Parent = Dropdown
-                ListFrame.Position = UDim2.new(0, 0, 0, 40)
-                ListFrame.Size = UDim2.new(1, 0, 0, #options * 20)
-                ListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-                ListFrame.Visible = false
-
-                local Layout = Instance.new("UIListLayout")
-                Layout.Parent = ListFrame
-                Layout.FillDirection = Enum.FillDirection.Vertical
-                Layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-                local selectedItems = {}
-
-                for _, opt in ipairs(options) do
-                    local OptButton = Instance.new("TextButton")
-                    OptButton.Parent = ListFrame
-                    OptButton.Size = UDim2.new(1, 0, 0, 20)
-                    OptButton.Text = "[ ] " .. tostring(opt)
-                    OptButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                    OptButton.Font = Enum.Font.Gotham
-                    OptButton.TextSize = 14
-                    OptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-                    local selected = false
-                    OptButton.MouseButton1Click:Connect(function()
-                        selected = not selected
-                        if selected then
-                            OptButton.Text = "[✓] " .. tostring(opt)
-                            table.insert(selectedItems, opt)
-                        else
-                            OptButton.Text = "[ ] " .. tostring(opt)
-                            for i, v in ipairs(selectedItems) do
-                                if v == opt then
-                                    table.remove(selectedItems, i)
-                                    break
-                                end
-                            end
-                        end
-                        if callback then callback(selectedItems) end
-                    end)
-                end
-
-                Selected.MouseButton1Click:Connect(function()
-                    ListFrame.Visible = not ListFrame.Visible
-                end)
-            end
-
             --
             local RemoveAmount = 0
             function SelectorFunctions:RemoveOption(option)
@@ -3325,6 +3187,142 @@ function library:Init(key)
                 return SelectorFunctions
             end
             return SelectorFunctions
+        end
+
+        function Components:NewDropdown(name, options, callback)
+            local Dropdown = Instance.new("Frame")
+            Dropdown.Name = name
+            Dropdown.BackgroundTransparency = 1
+            Dropdown.Size = UDim2.new(1, 0, 0, 40)
+            Dropdown.Parent = page
+
+            local Label = Instance.new("TextLabel")
+            Label.Parent = Dropdown
+            Label.Size = UDim2.new(1, -10, 0, 20)
+            Label.BackgroundTransparency = 1
+            Label.Text = name
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Font = Enum.Font.Gotham
+            Label.TextSize = 14
+
+            local Selected = Instance.new("TextButton")
+            Selected.Parent = Dropdown
+            Selected.Position = UDim2.new(0, 0, 0, 20)
+            Selected.Size = UDim2.new(1, 0, 0, 20)
+            Selected.Text = "Select..."
+            Selected.Font = Enum.Font.Gotham
+            Selected.TextSize = 14
+            Selected.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            Selected.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+            local ListFrame = Instance.new("Frame")
+            ListFrame.Parent = Dropdown
+            ListFrame.Position = UDim2.new(0, 0, 0, 40)
+            ListFrame.Size = UDim2.new(1, 0, 0, #options * 20)
+            ListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            ListFrame.Visible = false
+
+            local Layout = Instance.new("UIListLayout")
+            Layout.Parent = ListFrame
+            Layout.FillDirection = Enum.FillDirection.Vertical
+            Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+            for _, opt in ipairs(options) do
+                local OptButton = Instance.new("TextButton")
+                OptButton.Parent = ListFrame
+                OptButton.Size = UDim2.new(1, 0, 0, 20)
+                OptButton.Text = tostring(opt)
+                OptButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                OptButton.Font = Enum.Font.Gotham
+                OptButton.TextSize = 14
+                OptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+                OptButton.MouseButton1Click:Connect(function()
+                    Selected.Text = OptButton.Text
+                    ListFrame.Visible = false
+                    if callback then callback(opt) end
+                end)
+            end
+
+            Selected.MouseButton1Click:Connect(function()
+                ListFrame.Visible = not ListFrame.Visible
+            end)
+        end
+        --
+        function Components:NewMultiDropdown(name, options, callback)
+            local Dropdown = Instance.new("Frame")
+            Dropdown.Name = name
+            Dropdown.BackgroundTransparency = 1
+            Dropdown.Size = UDim2.new(1, 0, 0, 40)
+            Dropdown.Parent = page
+
+            local Label = Instance.new("TextLabel")
+            Label.Parent = Dropdown
+            Label.Size = UDim2.new(1, -10, 0, 20)
+            Label.BackgroundTransparency = 1
+            Label.Text = name
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Font = Enum.Font.Gotham
+            Label.TextSize = 14
+
+            local Selected = Instance.new("TextButton")
+            Selected.Parent = Dropdown
+            Selected.Position = UDim2.new(0, 0, 0, 20)
+            Selected.Size = UDim2.new(1, 0, 0, 20)
+            Selected.Text = "Select multiple..."
+            Selected.Font = Enum.Font.Gotham
+            Selected.TextSize = 14
+            Selected.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            Selected.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+            local ListFrame = Instance.new("Frame")
+            ListFrame.Parent = Dropdown
+            ListFrame.Position = UDim2.new(0, 0, 0, 40)
+            ListFrame.Size = UDim2.new(1, 0, 0, #options * 20)
+            ListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            ListFrame.Visible = false
+
+            local Layout = Instance.new("UIListLayout")
+            Layout.Parent = ListFrame
+            Layout.FillDirection = Enum.FillDirection.Vertical
+            Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+            local selectedItems = {}
+
+            for _, opt in ipairs(options) do
+                local OptButton = Instance.new("TextButton")
+                OptButton.Parent = ListFrame
+                OptButton.Size = UDim2.new(1, 0, 0, 20)
+                OptButton.Text = "[ ] " .. tostring(opt)
+                OptButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                OptButton.Font = Enum.Font.Gotham
+                OptButton.TextSize = 14
+                OptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+                local selected = false
+                OptButton.MouseButton1Click:Connect(function()
+                    selected = not selected
+                    if selected then
+                        OptButton.Text = "[✓] " .. tostring(opt)
+                        table.insert(selectedItems, opt)
+                    else
+                        OptButton.Text = "[ ] " .. tostring(opt)
+                        for i, v in ipairs(selectedItems) do
+                            if v == opt then
+                                table.remove(selectedItems, i)
+                                break
+                            end
+                        end
+                    end
+                    if callback then callback(selectedItems) end
+                end)
+            end
+
+            Selected.MouseButton1Click:Connect(function()
+                ListFrame.Visible = not ListFrame.Visible
+            end)
         end
         --
         function Components:NewSlider(text, suffix, compare, compareSign, values, callback)

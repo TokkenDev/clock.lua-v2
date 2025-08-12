@@ -121,7 +121,7 @@ local function stealFunction(shits, ownbase, stolecount)
     repeat
         HRP.CFrame = CFrame.new(shitcollect.Position + Vector3.new(0, 3, 0))
         task.wait()
-        if shits.object:FindFirstChild("Character") or not shits.object.Part:FindFirstChild("ProximityPrompt") then
+        if shits.object:FindFirstChild("Character") and not shits.object.Part:FindFirstChild("ProximityPrompt") then
             fireproximityprompt(shits.object.Character.HumanoidRootPart:WaitForChild("SlotPrompt"))
         end
     until shits.object.Part:FindFirstChild("ProximityPrompt") or not shits.object:FindFirstChild("Character")
@@ -247,7 +247,7 @@ local function getKPDH()
     for _, kpdh in pairs(ReplicatedStorage.Assets.Characters:GetChildren()) do
         table.insert(kpdhtable, addSpacesToName(kpdh.Name))
     end
-    
+
     table.sort(kpdhtable)
     return kpdhtable
 end

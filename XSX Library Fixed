@@ -3252,6 +3252,7 @@ function library:Init(key)
             end
 
             Populate(options)
+            UpdatePageSize()
 
             Selected.MouseButton1Click:Connect(function()
                 ListFrame.Visible = not ListFrame.Visible
@@ -3261,6 +3262,7 @@ function library:Init(key)
                 Frame = Dropdown,
                 Refresh = function(newOptions)
                     Populate(newOptions)
+                    UpdatePageSize()
                 end
             }
         end
@@ -3342,6 +3344,7 @@ function library:Init(key)
             end
 
             Populate(options)
+            UpdatePageSize()
 
             Selected.MouseButton1Click:Connect(function()
                 ListFrame.Visible = not ListFrame.Visible
@@ -3351,6 +3354,7 @@ function library:Init(key)
                 Frame = Dropdown,
                 Refresh = function(newOptions)
                     Populate(newOptions)
+                    UpdatePageSize()
                 end
             }
         end

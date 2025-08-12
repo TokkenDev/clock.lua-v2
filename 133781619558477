@@ -55,6 +55,7 @@ local SpecificKPDH = "Rainbow Derpy Tiger"
 
 if not getgenv().desiredWalkSpeed then
     getgenv().desiredWalkSpeed = 30
+
     RunService.Heartbeat:Connect(function()
         pcall(function()
             if LPlayer.Character and LPlayer.Character.Humanoid then
@@ -66,9 +67,10 @@ end
 
 if not getgenv().lolxdteleportyes then
     getgenv().lolxdteleportyes = true
+
     LPlayer.OnTeleport:Connect(function()
         if queue_on_teleport then
-            queue_on_teleport("task.wait(1) loadstring(game:HttpGet('https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/133781619558477'))()")
+            queue_on_teleport("task.wait(1.5) loadstring(game:HttpGet('https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/133781619558477'))()")
         end
     end)
 end
@@ -76,6 +78,7 @@ end
 -- Functions --
 local function getBase(playername)
     local result
+
     if Players:FindFirstChild(playername) then
         for _, base in ipairs(bases:GetChildren()) do
             local signtext = base.Important.Sign.SignPart.SurfaceGui.TextLabel.Text
@@ -85,64 +88,74 @@ local function getBase(playername)
             end
         end
     end
-    task.wait()
+
     return result
 end
 
 local function getAllShits(basenumber)
     local shitstable = {}
-    for _, chars in pairs(workspace.Map.Bases[basenumber].Important.NPCPads:GetChildren()) do
-        if chars:FindFirstChild("Character") then
-            if chars.Character.Head:FindFirstChild("OverHeadAttachment") then
-                local charname = chars.Character.Head.OverHeadAttachment.CharacterInfo.Frame.UnitName.Text
-                local pricetag = chars.Character.Head.OverHeadAttachment.CharacterInfo.Frame.Price.Text
-                table.insert(shitstable, {object = chars, name = charname, price = pricetag})
+
+    for _, chars in ipairs(workspace.Map.Bases[basenumber].Important.NPCPads:GetChildren()) do
+        local charModel = chars:FindFirstChild("Character")
+        if charModel and charModel:FindFirstChild("Head") then
+            local attach = charModel.Head:FindFirstChild("OverHeadAttachment")
+            if attach and attach:FindFirstChild("CharacterInfo") then
+                local frame = attach.CharacterInfo:FindFirstChild("Frame")
+                if frame and frame:FindFirstChild("UnitName") and frame:FindFirstChild("Price") then
+                    table.insert(shitstable, {
+                        object = chars,
+                        name = frame.UnitName.Text,
+                        price = frame.Price.Text
+                    })
+                end
             end
         end
     end
+
     return shitstable
 end
 
 local function stealFunction(shits, ownbase, stolecount)
     local shitcollect = shits.object.Collect
+
     repeat
         HRP.CFrame = CFrame.new(shitcollect.Position + Vector3.new(0, 3, 0))
         task.wait()
         if shits.object:FindFirstChild("Character") or not shits.object.Part:FindFirstChild("ProximityPrompt") then
             fireproximityprompt(shits.object.Character.HumanoidRootPart:WaitForChild("SlotPrompt"))
-        else
-            continue
         end
     until shits.object.Part:FindFirstChild("ProximityPrompt") or not shits.object:FindFirstChild("Character")
-    stolecount = stolecount + 1
+
     HRP.CFrame = bases[ownbase].Important.RobberyDeposit.CFrame
+    stolecount = stolecount + 1
     return stolecount
 end
 
 local function stealSearchShit(shitsname)
     local ownbase = getBase(LPlayer.Name)
     local stolecount = 0
+
     for _, fplayers in pairs(Players:GetChildren()) do
-        if fplayers.Name ~= LPlayer.Name then
+        if fplayers ~= LPlayer then
             local currenttarget = getBase(fplayers.Name)
-            for _, shits in pairs(getAllShits(currenttarget)) do
-                if shits.name == shitsname then
-                    stolecount = stealFunction(shits, ownbase, stolecount)
-                    task.wait(0.1)
+            if currenttarget then
+                for _, shits in pairs(getAllShits(currenttarget)) do
+                    if shits.name == shitsname then
+                        stolecount = stealFunction(shits, ownbase, stolecount)
+                        task.wait(0.1)
+                    end
                 end
             end
         end
     end
-    if stolecount > 0 then
-        return true, stolecount
-    else
-        return false, stolecount
-    end
+
+    return stolecount > 0, stolecount
 end
 
 local function stealAllShits(playername)
     local target = getBase(playername)
     local ownbase = getBase(LPlayer.Name)
+
     if target then
         for _, shits in getAllShits(target) do
             if Players:FindFirstChild(playername) then
@@ -158,13 +171,11 @@ end
 local function sellAllPlayerShits()
     for _, shits in pairs(getAllShits(getBase(LPlayer.Name))) do
         local shitcollect = shits.object.Collect
+
         repeat
             task.wait()
             HRP.CFrame = CFrame.new(shitcollect.Position + Vector3.new(0, 3, 0))
-            if shits.object:FindFirstChild("Character") and 
-            shits.object.Character.HumanoidRootPart:FindFirstChild("SlotPrompt") and not
-            shits.object.Part:FindFirstChild("ProximityPrompt")
-            then
+            if shits.object:FindFirstChild("Character") and shits.object.Character.HumanoidRootPart:FindFirstChild("SlotPrompt") and not shits.object.Part:FindFirstChild("ProximityPrompt") then
                 fireproximityprompt(shits.object.Character.HumanoidRootPart.SlotPrompt)
             end
         until not shits.object:FindFirstChild("Character") or shits.object.Part:FindFirstChild("ProximityPrompt")
@@ -232,9 +243,11 @@ end
 
 local function getKPDH()
     local kpdhtable = {}
+
     for _, kpdh in pairs(ReplicatedStorage.Assets.Characters:GetChildren()) do
         table.insert(kpdhtable, addSpacesToName(kpdh.Name))
     end
+    
     table.sort(kpdhtable)
     return kpdhtable
 end

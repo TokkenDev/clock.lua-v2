@@ -1,7 +1,7 @@
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/XSX%20Library%20Fixed"))()
-local Watermark = library:Watermark("clock.lua | loader | v2.0.0 | " .. library:GetUsername())
+library:Watermark("clock.lua | loader | v2.0.0 | " .. library:GetUsername())
 local Notifications = library:InitNotifications()
-local LoadingXSX = Notifications:Notify("Loading XSX Lib Fixed, please be patient.", 3, "information")
+Notifications:Notify("Loading XSX Lib Fixed, please be patient.", 3, "information")
 library.title = "clock.lua"
 library:Introduction()
 local Init = library:Init()
@@ -39,8 +39,10 @@ LoaderTab:NewButton("Execute Script", function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId).."experimental"))()
         end
     end)
-    if not success then
-        Notifications:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
+    if success then
+        library:Remove()
+    else
+        library:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
         error("[clock.lua] "..tostring(game.PlaceId).." Not Supported, error: "..errormessage)
     end
 end)
@@ -57,7 +59,7 @@ TestTab:NewLabel("Test Versions can be extremely unstable, or not work at all. D
 TestTab:NewToggle("Toggle Test Version", false, function(bool)
     TestToggle = bool
     if bool then
-        Notifications:Notify("Hope you read the warning :)", 3, "information")
+        library:Notify("Hope you read the warning :)", 3, "information")
     end
 end)
 
@@ -73,9 +75,9 @@ for _, gameid in gamestable do
     GamesTab:NewButton(gamename, function()
         if setclipboard then
             setclipboard("https://www.roblox.com/games/"..gameid.."/")
-            Notifications:Notify('Copied the game "'..gamename..'" to clipboard!', 3, "success")
+            library:Notify('Copied the game "'..gamename..'" to clipboard!', 3, "success")
         else
-            Notifications:Notify("Pack it up and search the game urself, ur executor poo poo :)", 10, "error")
+            library:Notify("Pack it up and search the game urself, ur executor poo poo :)", 10, "error")
         end
     end)
 end
@@ -84,8 +86,8 @@ GamesTab:NewLabel("Broken/Planned Games", "center")
 for _, gameid in nwgamestable do
     local gamename = GetGameName(gameid)
     GamesTab:NewButton(gamename, function()
-        Notifications:Notify('"'..gamename..'"'.." is either broken or only planned, try again later!", 3, "error")
+        library:Notify('"'..gamename..'"'.." is either broken or only planned, try again later!", 3, "error")
     end)
 end
 
-Notifications:Notify("Loaded XSX Lib Fixed", 3, "success")
+library:Notify("Loaded XSX Lib", 3, "success")

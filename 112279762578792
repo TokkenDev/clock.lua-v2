@@ -25,16 +25,17 @@ local MiscTab = Window:MakeTab({
 })
 
 -- Init --
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
-local plr = Players.LocalPlayer
+local LPlayer = Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
-local Mouse = plr:GetMouse()
-local root = plr.Character:FindFirstChild("HumanoidRootPart")
+local Mouse = LPlayer:GetMouse()
+local HRP = LPlayer.Character:FindFirstChild("HumanoidRootPart")
 local Mine = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 local Drill = ReplicatedStorage["shared/network/MiningNetwork@GlobalMiningFunctions"].Drill
 local Dynamite = ReplicatedStorage["shared/network/DynamiteNetwork@GlobalDynamiteFunctions"].UseDynamite
@@ -60,7 +61,7 @@ local ownPos = nil
 local MiningDir = "Camera"
 local function findtradertom()
     if not tradertomPos then
-        root.CFrame = CFrame.new(Vector3.new(998, 245, -71))
+        HRP.CFrame = CFrame.new(Vector3.new(998, 245, -71))
         local attempt = 0
         repeat
             for _, npc in pairs(workspace:GetChildren()) do
@@ -87,8 +88,8 @@ if not getgenv().wshb then
     getgenv().wshb = true
     RunService.Heartbeat:Connect(function()
         pcall(function()
-            if plr.Character and plr.Character.Humanoid then
-                plr.Character.Humanoid.WalkSpeed = getgenv().desiredWalkSpeed
+            if LPlayer.Character and LPlayer.Character.Humanoid then
+                LPlayer.Character.Humanoid.WalkSpeed = getgenv().desiredWalkSpeed
             end
         end)
     end)
@@ -96,11 +97,11 @@ end
 
 -- Functions --
 local function findNearestItem()
-    if not items or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
+    if not items or not LPlayer.Character or not LPlayer.Character:FindFirstChild("HumanoidRootPart") then
         return nil
     end
 
-    local playerPos = plr.Character.HumanoidRootPart.Position
+    local playerPos = LPlayer.Character.HumanoidRootPart.Position
     local closestItem = nil
     local shortestDistance = math.huge
 
@@ -135,8 +136,8 @@ local function MineOres()
             )
         elseif MiningDir == "Towards Ores" then
             local closestItem = findNearestItem()
-            if closestItem and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                local playerPos = plr.Character.HumanoidRootPart.Position
+            if closestItem and LPlayer.Character and LPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local playerPos = LPlayer.Character.HumanoidRootPart.Position
                 local itemPos
                 if closestItem:IsA("MeshPart") then
                     itemPos = closestItem.Position
@@ -179,8 +180,8 @@ local function MineOresDrill()
             )
         elseif MiningDir == "Towards Ores" then
             local closestItem = findNearestItem()
-            if closestItem and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                local playerPos = plr.Character.HumanoidRootPart.Position
+            if closestItem and LPlayer.Character and LPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local playerPos = LPlayer.Character.HumanoidRootPart.Position
                 local itemPos
                 if closestItem:IsA("MeshPart") then
                     itemPos = closestItem.Position
@@ -221,9 +222,9 @@ local function UseDynamite()
 end
 
 local function navigateToNearestOre()
-    local humanoid = plr.Character.Humanoid
-    local playerPos = root.Position
-    local plrHeadPos = plr.Character.Head.Position
+    local humanoid = LPlayer.Character.Humanoid
+    local playerPos = HRP.Position
+    local LPlayerHeadPos = LPlayer.Character.Head.Position
     local closestItem = findNearestItem()
     local targetPos = nil
 
@@ -242,16 +243,16 @@ local function navigateToNearestOre()
 
     if targetPos then
         if closestItem then
-            local rayOrigin = plrHeadPos
-            local rayDirection = targetPos - plrHeadPos
+            local rayOrigin = LPlayerHeadPos
+            local rayDirection = targetPos - LPlayerHeadPos
             local raycastParams = RaycastParams.new()
-            raycastParams.FilterDescendantsInstances = {plr.Character, items}
+            raycastParams.FilterDescendantsInstances = {LPlayer.Character, items}
             raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
             local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
             if not raycastResult then
                 local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0)
-                local tween = TweenService:Create(root, tweenInfo, {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))})
+                local tween = TweenService:Create(HRP, tweenInfo, {CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))})
                 tween:Play()
                 tween.Completed:Wait()
             end
@@ -264,12 +265,12 @@ local function navigateToNearestOre()
             })
 
             local success, errorMessage = pcall(function()
-                path:ComputeAsync(root.Position, targetPos)
+                path:ComputeAsync(HRP.Position, targetPos)
             end)
 
             if success and path.Status == Enum.PathStatus.Success then
                 for _, waypoint in ipairs(path:GetWaypoints()) do
-                    if not plr.Character or not plr.Character.Humanoid then
+                    if not LPlayer.Character or not LPlayer.Character.Humanoid then
                         break
                     end
                     humanoid:MoveTo(waypoint.Position)
@@ -329,12 +330,12 @@ local function SellInventory()
     end
 
     local success, err = pcall(function()
-        local lastPos = root.Position
-        root.CFrame = CFrame.new(tradertomPos)
+        local lastPos = HRP.Position
+        HRP.CFrame = CFrame.new(tradertomPos)
         task.wait(0.5)
         ReplicatedStorage.Ml.SellInventory:FireServer()
         task.wait(0.5)
-        root.CFrame = CFrame.new(lastPos)
+        HRP.CFrame = CFrame.new(lastPos)
     end)
 
     if not success then
@@ -531,48 +532,48 @@ TeleportTab:AddLabel("Teleports")
 
 TeleportTab:AddButton({Name = "Forest", Callback = function()
     local targetPos = Vector3.new(998, 245, -71)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Mine Passage", Callback = function()
     local targetPos = Vector3.new(1020, 181, -1451)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Crystal Cave", Callback = function()
     local targetPos = Vector3.new(1011, 177, -2910)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Merchant Mike (Ores)", Callback = function()
     local targetPos = Vector3.new(1043, 245, -198)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Driller Dan (Drills)", Callback = function()
     local targetPos = Vector3.new(906, 245, -454)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Sally (Pickaxes)", Callback = function()
     local targetPos = Vector3.new(1054, 245, -283)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Bob (Radars)", Callback = function()
     local targetPos = Vector3.new(1085, 245, -468)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddButton({Name = "Miner Mike (Offline)", Callback = function()
     local targetPos = Vector3.new(954, 245, -222)
-    root.CFrame = CFrame.new(targetPos)
+    HRP.CFrame = CFrame.new(targetPos)
 end})
 
 TeleportTab:AddLabel("Custom Teleports")
 
 TeleportTab:AddButton({Name = "Set your own position", Callback = function()
-    ownPos = root.Position
+    ownPos = HRP.Position
     OrionLib:MakeNotification({
         Name = "Teleport Set!",
         Content = "Successfully set teleport position.",
@@ -583,7 +584,7 @@ end})
 
 TeleportTab:AddButton({Name = "Teleport to your own position", Callback = function()
     if ownPos then
-        root.CFrame = CFrame.new(ownPos)
+        HRP.CFrame = CFrame.new(ownPos)
     else
         OrionLib:MakeNotification({
             Name = "Teleport Failed!",
@@ -679,10 +680,8 @@ MiscTab:AddToggle({Name = "Instant Proximity Prompt",  Default = false,  Callbac
     end
 end})
 
-MiscTab:AddSlider({Name = "Walkspeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, Callback = function(Value)
-    pcall(function()
-        getgenv().desiredWalkSpeed = Value
-    end)
+MiscTab:AddSlider({Name = "WalkSpeed", Min = 16, Max = 200, Default = 16, Color = Color3.fromRGB(255,255,255), Increment = 1, Callback = function(Value)
+    getgenv().desiredWalkSpeed = Value
 end})
 
 MiscTab:AddButton({Name = "Remove Fog", Callback = function()

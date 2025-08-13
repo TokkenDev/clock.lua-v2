@@ -3578,7 +3578,6 @@ function library:Init(key)
         key = new
         return TabLibrary
     end
-    return TabLibrary
     --fixed remove for library (wtf why wasnt this here already)
     function library:Remove()
         for _,v in next, CoreGuiService:GetChildren() do
@@ -3587,5 +3586,6 @@ function library:Init(key)
             end
         end
     end
+    return TabLibrary
 end
 return library

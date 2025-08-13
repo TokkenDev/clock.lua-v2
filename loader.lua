@@ -42,7 +42,7 @@ LoaderTab:NewButton("Execute Script", function()
     if success then
         library:Remove()
     else
-        library:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
+        Notifications:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
         error("[clock.lua] "..tostring(game.PlaceId).." Not Supported, error: "..errormessage)
     end
 end)
@@ -59,7 +59,7 @@ TestTab:NewLabel("Test Versions can be extremely unstable, or not work at all. D
 TestTab:NewToggle("Toggle Test Version", false, function(bool)
     TestToggle = bool
     if bool then
-        library:Notify("Hope you read the warning :)", 3, "information")
+        Notifications:Notify("Hope you read the warning :)", 3, "information")
     end
 end)
 
@@ -75,9 +75,9 @@ for _, gameid in gamestable do
     GamesTab:NewButton(gamename, function()
         if setclipboard then
             setclipboard("https://www.roblox.com/games/"..gameid.."/")
-            library:Notify('Copied the game "'..gamename..'" to clipboard!', 3, "success")
+            Notifications:Notify('Copied the game "'..gamename..'" to clipboard!', 3, "success")
         else
-            library:Notify("Pack it up and search the game urself, ur executor poo poo :)", 10, "error")
+            Notifications:Notify("Pack it up and search the game urself, ur executor poo poo :)", 10, "error")
         end
     end)
 end
@@ -86,8 +86,8 @@ GamesTab:NewLabel("Broken/Planned Games", "center")
 for _, gameid in nwgamestable do
     local gamename = GetGameName(gameid)
     GamesTab:NewButton(gamename, function()
-        library:Notify('"'..gamename..'"'.." is either broken or only planned, try again later!", 3, "error")
+        Notifications:Notify('"'..gamename..'"'.." is either broken or only planned, try again later!", 3, "error")
     end)
 end
 
-library:Notify("Loaded XSX Lib", 3, "success")
+Notifications:Notify("Loaded XSX Lib", 3, "success")

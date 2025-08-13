@@ -56,7 +56,6 @@ local CollectMode = "Legit"
 local OresThread = nil
 local PromptButtonHoldBegan = nil
 local tradertomPos = nil
-getgenv().desiredWalkSpeed = 16
 local ownPos = nil
 local MiningDir = "Camera"
 local function findtradertom()
@@ -84,8 +83,8 @@ pcall(function()
     findtradertom()
 end)
 
-if not getgenv().wshb then
-    getgenv().wshb = true
+if not getgenv().desiredWalkSpeed then
+    getgenv().desiredWalkSpeed = 16
     RunService.Heartbeat:Connect(function()
         pcall(function()
             if LPlayer.Character and LPlayer.Character.Humanoid then

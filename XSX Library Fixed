@@ -3561,11 +3561,7 @@ function library:Init(key)
     end
     --
     function TabLibrary:Remove()
-        for _,v in next, CoreGuiService:GetChildren() do
-            if v.Name == "XSX" or v.Name == "XSXwatermark" then
-                v:Destroy()
-            end
-        end
+        screen:Destroy()
 
         return TabLibrary
     end
@@ -3583,5 +3579,13 @@ function library:Init(key)
         return TabLibrary
     end
     return TabLibrary
+    --fixed remove for library (wtf why wasnt this here already)
+    function library:Remove()
+        for _,v in next, CoreGuiService:GetChildren() do
+            if v.Name == "XSX" or v.Name == "XSXwatermark" then
+                v:Destroy()
+            end
+        end
+    end
 end
 return library

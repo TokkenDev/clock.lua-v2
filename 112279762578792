@@ -207,7 +207,7 @@ local function MineOresDrill()
                 math.random(-1000, 1000)
             )
         end
-        Drill:FireServer(math.random(0,9e9), {direction = minePos, heat = 0, overheated = false})
+        Drill:FireServer(math.random(0,2e9), {direction = minePos, heat = 0, overheated = false})
         task.wait(0.05)
     end
 end
@@ -215,7 +215,7 @@ end
 local function UseDynamite()
     while AutoDynamite do
         local hitPosition = Mouse.Hit.Position
-        Dynamite:FireServer(math.random(0,9e9), hitPosition)
+        Dynamite:FireServer(math.random(0,2e9), hitPosition)
         task.wait(0.5)
     end
 end

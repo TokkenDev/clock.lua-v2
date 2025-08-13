@@ -33,15 +33,14 @@ end
 -- Loader --
 LoaderTab:NewButton("Execute Script", function()
     local success, errormessage = pcall(function()
+        library:Remove()
         if TestToggle == false then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId)))()
         else
             loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId).."experimental"))()
         end
     end)
-    if success then
-        library:Remove()
-    else
+    if not success then
         Notifications:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
         error("[clock.lua] "..tostring(game.PlaceId).." Not Supported, error: "..errormessage)
     end

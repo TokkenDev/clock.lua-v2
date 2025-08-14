@@ -8,6 +8,7 @@ local Init = library:Init()
 local LoaderTab = Init:NewTab("Loader")
 local TestTab = Init:NewTab("Test Version")
 local GamesTab = Init:NewTab("Games")
+local UITab = Init:NewTab("UI")
 
 -- Init --
 local TestToggle = false
@@ -65,8 +66,8 @@ end)
 -- Games --
 GamesTab:NewLabel("You can copy the link to other supported games here!", "center")
 
-local gamestable = {112279762578792, 133781619558477}
-local nwgamestable = {103889808775700, 16991287194, 7979341445}
+local gamestable = {112279762578792, 133781619558477, 7979341445}
+local nwgamestable = {103889808775700, 16991287194}
 
 GamesTab:NewLabel("Working Games", "center")
 for _, gameid in gamestable do
@@ -88,5 +89,12 @@ for _, gameid in nwgamestable do
         Notifications:Notify('"'..gamename..'"'.." is either broken or only planned, try again later!", 3, "error")
     end)
 end
+
+-- UITab --
+UITab:NewButton("Destroy UI", function()
+    library:Remove()
+end)
+
+UITab:NewLabel("working on modifying the library for more ui functions", "center")
 
 Notifications:Notify("Loaded XSX Lib", 3, "success")

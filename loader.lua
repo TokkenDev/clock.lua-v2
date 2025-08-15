@@ -67,7 +67,7 @@ end)
 GamesTab:NewLabel("You can copy the link to other supported games here!", "center")
 
 local gamestable = {112279762578792, 133781619558477, 7979341445}
-local nwgamestable = {103889808775700, 16991287194}
+local nwgamestable = {103889808775700, 537413528, 13033713206}
 
 GamesTab:NewLabel("Working Games", "center")
 for _, gameid in gamestable do

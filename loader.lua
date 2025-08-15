@@ -15,8 +15,9 @@ local TestToggle = false
 local MarketplaceService = game:GetService("MarketplaceService")
 local TeleportService = game:GetService("TeleportService")
 local Player = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
 
--- Function --
+-- Functions --
 local function GetGameName(gameid)
     local success, gameInfo = pcall(function()
         return MarketplaceService:GetProductInfo(gameid)
@@ -29,10 +30,21 @@ local function GetGameName(gameid)
     end
 end
 
+local function isAndroid()
+    return UserInputService:GetPlatform() == Enum.Platform.Android
+    -- gonna use this for a mobile ui toggle when i add it fr
+end
+
 -- Library Components --
 
 -- Loader --
 LoaderTab:NewButton("Execute Script", function()
+    local executor = identifyexecutor()
+    local device = isAndroid()
+    if string.match("Solara", executor) or string.match("Xeno", executor) or string.match("SirHurt", executor) then 
+        game:GetService("Players").LocalPlayer:Kick("Your executor '"..executor.."' is too low-level for clock.lua to function properly, please use "..(device and "Delta" or "Zenith or Swift").." (or visit voxlis.net to search for a better executor)") 
+        error()
+    end
     local success, errormessage = pcall(function()
         library:Remove()
         if TestToggle == false then
@@ -43,7 +55,7 @@ LoaderTab:NewButton("Execute Script", function()
     end)
     if not success then
         Notifications:Notify("Game not supported or currently broken, if this is an error please report it (console)!", 3, "error")
-        error("[clock.lua] "..tostring(game.PlaceId).." Not Supported, error: "..errormessage)
+        error("[clock.lua] "..tostring(game.PlaceId).." Not Supported/Broken, error: "..errormessage)
     end
 end)
 

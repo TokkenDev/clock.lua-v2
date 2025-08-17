@@ -11,7 +11,8 @@ local GamesTab = Init:NewTab("Games")
 local UITab = Init:NewTab("UI")
 
 -- Init --
-local TestToggle = false
+local TestVersionToggle = false
+local TestKey = nil
 local MarketplaceService = game:GetService("MarketplaceService")
 local TeleportService = game:GetService("TeleportService")
 local Player = game:GetService("Players").LocalPlayer
@@ -60,7 +61,7 @@ LoaderTab:NewButton("Execute Script", function()
     end
     local success, errormessage = pcall(function()
         library:Remove()
-        if TestToggle == false then
+        if TestVersionToggle == false then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId)))()
         else
             loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/"..tostring(game.PlaceId).."experimental"))()
@@ -79,12 +80,49 @@ LoaderTab:NewButton("Rejoin Server", function()
 end)
 
 -- Test Version --
-TestTab:NewLabel("Test Versions can be extremely unstable, or not work at all. DO NOT report bugs if you're using the test version.", "center")
+TestTab:NewLabel("Test Versions can contain functions that haven't been tested properly, or may not contain any changes at all!", "center")
 
-TestTab:NewToggle("Toggle Test Version", false, function(bool)
-    TestToggle = bool
-    if bool then
-        Notifications:Notify("Hope you read the warning :)", 3, "information")
+TestTab:NewLabel("The key is NOT mandatory for the stable version, nothing is stopping you from also bypassing this but if you wanna support me, please do the work.ink :)", "center")
+
+TestTab:NewButton("Copy key link", function()
+    if setclipboard then
+        setclipboard("https://work.ink/235G/clockluatestversion")
+        Notifications:Notify("Copied key link to clipboard!", 3, "success")
+    else
+        Notifications:Notify("Your executor does not support setclipboard, the link is below.", 3, "error")
+        Notifications:Notify("https://work.ink/235G/clockluatestversion", 60, "information")
+    end
+end)
+TestTab:NewTextbox("Enter key for the test version", "", "...", "all", "medium", true, false, function(Value)
+    TestKey = Value
+end)
+
+local TestToggle
+TestToggle = TestTab:NewToggle("Toggle test version", false, function(bool)
+    if inprogress then return end
+    if TestKey then
+        local url = "https://work.ink/_api/v2/token/isValid/"..TestKey
+        local http_request = http_request or request
+        local response = http_request({Url = url, Method = "GET"})
+        local HttpService = game:GetService("HttpService")
+        local data = HttpService:JSONDecode(response.Body)
+        if bool and data.valid then
+            Notifications:Notify("Enabled test version, enjoy.", 3, "success")
+            TestVersionToggle = true
+        elseif not bool and data.valid then
+            Notifications:Notify("Disabled test version.", 3, "success")
+            TestVersionToggle = false
+        elseif bool and not data.valid then
+            Notifications:Notify("Invalid test key!", 3, "error")
+            inprogress = true
+            TestToggle:Set(false)
+            inprogress = false
+        end
+    else
+        Notifications:Notify("Please input a key first.", 3, "error")
+        inprogress = true
+        TestToggle:Set(false)
+        inprogress = false
     end
 end)
 

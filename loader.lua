@@ -80,9 +80,11 @@ LoaderTab:NewButton("Rejoin Server", function()
 end)
 
 -- Test Version --
-TestTab:NewLabel("Test Versions can contain functions that haven't been tested properly, or may not contain any changes at all!", "center")
+TestTab:NewLabel("Test versions might have unfinished features, bugs, or sometimes no changes at all.", "center")
 
-TestTab:NewLabel("The key is NOT mandatory for the stable version, nothing is stopping you from also bypassing this but if you wanna support me, please do the work.ink :)", "center")
+TestTab:NewLabel("You don't need a key for the stable version. Sure, you could bypass it, but if you want to support me, please use the official method. :)", "center")
+
+TestTab:NewLabel("Keys last for 24 hours.", "center")
 
 TestTab:NewButton("Copy key link", function()
     if setclipboard then

@@ -31,7 +31,7 @@ local function GetGameName(gameid)
     if success then
         return gameInfo.Name
     else
-        return "Failed to get game's name!"
+        return "Failed to get the game's name, sorry!"
     end
 end
 

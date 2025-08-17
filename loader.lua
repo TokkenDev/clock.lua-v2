@@ -16,6 +16,11 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local TeleportService = game:GetService("TeleportService")
 local Player = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
+local unsupexecTable = {
+    ["Solara"] = 1,
+    ["Xeno"] = 1,
+    ["SirHurt"] = 2
+}
 
 -- Functions --
 local function GetGameName(gameid)
@@ -41,9 +46,17 @@ end
 LoaderTab:NewButton("Execute Script", function()
     local executor = identifyexecutor()
     local device = isAndroid()
-    if string.match("Solara", executor) or string.match("Xeno", executor) or string.match("SirHurt", executor) then 
-        game:GetService("Players").LocalPlayer:Kick("Your executor '"..executor.."' is too low-level for clock.lua to function properly, please use "..(device and "Delta" or "Zenith or Swift").." (or visit voxlis.net to search for a better executor)") 
-        error()
+    for name, arg in pairs(unsupexecTable) do
+        if string.match(name, executor) then
+            if arg == 2 then
+                Notifications:Notify("Your executor "..executor.." can have problems with some functions of clock.lua, please keep that in mind.", 10, "information")
+                Notifications:Notify("The script will execute in 10 seconds, please read this :)", 10, "information")
+                task.wait(10)
+            elseif arg == 1 then
+                game:GetService("Players").LocalPlayer:Kick("Your executor '"..executor.."' is too low-level for clock.lua to function properly, please use "..(device and "Delta" or "Zenith or Swift").." (or visit voxlis.net to search for a better executor)")
+                error()
+            end
+        end
     end
     local success, errormessage = pcall(function()
         library:Remove()

@@ -1,4 +1,4 @@
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/7979341445"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/7979341445experimental"))()
 
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/TokkenDev/clock.lua-v2/refs/heads/main/XSX%20Library%20Fixed"))()
 library:Watermark("clock.lua | WHG - Test | v2.0.0 | " .. library:GetUsername())
@@ -40,17 +40,27 @@ end
 
 -- Library Components --
 -- MainTab --
+MainTab:NewToggle("No Clip", false, function(bool)
+    Notifications:Notify("No Clip "..(bool and "ON" or "OFF"), 3, (bool and "success" or "error"))
+    for _, playerpart in pairs(Char:GetChildren()) do
+        for _,partname in nocliptable do
+            if playerpart.Name == partname then
+                playerpart.CanCollide = not bool
+            end
+        end
+    end
+end)
+
 MainTab:NewButton("Destroy All Death Balls", function()
     Notifications:Notify("Please wait...", 3, "information")
     local success, fail = pcall(function()
         for _, levelpart in pairs(getLevelsTable()) do
             for _, sublevelpart in pairs(levelpart.object:GetChildren()) do
-                if sublevelpart.Name == "Text" then
-                    sublevelpart.Value = "clock.lua on top :3"
-                end
-                for _,partname in badpartstable do
+                for _, partname in badpartstable do
                     if sublevelpart.Name == partname then
                         sublevelpart:Destroy()
+                    elseif sublevelpart.Name == "Text" then
+                        sublevelpart.Value = "clock.lua on top :3"
                     end
                 end
             end
@@ -104,18 +114,18 @@ MainTab:NewButton("Get 1000 Deaths (Achievement)", function()
     Notifications:Notify("Added 1000 Deaths", 3, "success")
 end)
 
-MainTab:NewToggle("No Clip", false, function(bool)
-    Notifications:Notify("No Clip "..(bool and "ON" or "OFF"), 3, (bool and "success" or "error"))
-    for _, playerpart in pairs(Char:GetChildren()) do
-        for _,partname in nocliptable do
-            if playerpart.Name == partname then
-                playerpart.CanCollide = not bool
-            end
-        end
+MainTab:NewButton("Get 50 Wins (Skin)", function()
+    for i = 1, 50 do
+        ReplicatedStorage.Win:FireServer(32)
     end
+    Notifications:Notify("Added 50 Wins", 3, "success")
 end)
 
-local LvTeleportSelector = MainTab:NewSelector("Switch Levels", "...", {}, function(Value)
+MainTab:NewTextbox("Set custom level", "", "1337", "numbers", "medium", true, false, function(val)
+    ReplicatedStorage.Win:FireServer(val)
+end)
+
+local LvTeleportSelector = MainTab:NewSelector("Switch Levels", nil, {}, function(Value)
     ReplicatedStorage.Win:FireServer(tonumber(Value))
     Notifications:Notify("Switched to level "..Value, 3, "success")
 end)

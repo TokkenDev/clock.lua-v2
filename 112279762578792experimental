@@ -33,9 +33,6 @@ local items = workspace:FindFirstChild("Items")
 local radarModule = require(LPlayer.PlayerScripts.TS.controllers.mining.RadarController)
 local RadarController = radarModule.RadarController
 local oldUseRadar = RadarController.useRadar
-local dynamiteModule = require(LPlayer.PlayerScripts.TS.controllers.mining.DynamiteController)
-local DynamiteController = dynamiteModule.DynamiteController
-local oldUseDynamite = DynamiteController.useDynamite
 
 LPlayer.CharacterAdded:Connect(function(char)
     Char = LPlayer.Character

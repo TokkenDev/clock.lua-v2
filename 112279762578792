@@ -584,6 +584,10 @@ MiscTab:NewToggle("Instant proximity prompt", true, function(bool)
     end
 end)
 
+MiscTab:NewSlider("WalkSpeed", "", true, "/", {min = 16, max = 200, default = 30}, function(value)
+    getgenv().desiredWalkSpeed = value
+end)
+
 MiscTab:NewButton("Remove fog", function()
 	Lighting.FogEnd = 10000
 	for i,v in pairs(Lighting:GetDescendants()) do

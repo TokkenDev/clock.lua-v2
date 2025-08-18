@@ -167,9 +167,12 @@ UITab:NewLabel("working on modifying the library for more ui functions", "center
 -- SkidTab --
 SkidTab:NewLabel("Don't skid, you will appear here :)", "center")
 -- zoro_ontop 885541246083407873
-SkidTab:NewLabel("Skid #1", "center")
-SkidTab:NewLabel("Subject: zoro_ontop, Discord ID: 885541246083407873", "left")
+SkidTab:NewSection("Skid #1")
+SkidTab:NewLabel("Subject: zoro_ontop, \nDiscord ID: 885541246083407873, \nRScripts: @Dead, \nScriptBlox: DEADFR", "left")
 SkidTab:NewLabel("Game: Mines", "left")
 SkidTab:NewLabel("Reason: Pasted entire script and changed credits </3", "left")
+
+-- End of skid list
+SkidTab:NewSection("END OF LIST")
 
 Notifications:Notify("Loaded XSX Lib", 3, "success")

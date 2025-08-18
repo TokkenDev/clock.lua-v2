@@ -9,6 +9,7 @@ local LoaderTab = Init:NewTab("Loader")
 local TestTab = Init:NewTab("Test Version")
 local GamesTab = Init:NewTab("Games")
 local UITab = Init:NewTab("UI")
+local SkidTab = Init:NewTab("SKID LIST")
 
 -- Init --
 local TestVersionToggle = false
@@ -95,6 +96,7 @@ TestTab:NewButton("Copy key link", function()
         Notifications:Notify("https://work.ink/235G/clockluatestversion", 60, "information")
     end
 end)
+
 TestTab:NewTextbox("Enter key for the test version", "", "...", "all", "medium", true, false, function(Value)
     TestKey = Value
 end)
@@ -161,5 +163,13 @@ UITab:NewButton("Destroy UI", function()
 end)
 
 UITab:NewLabel("working on modifying the library for more ui functions", "center")
+
+-- SkidTab --
+SkidTab:NewLabel("Don't skid, you will appear here :)", "center")
+-- zoro_ontop 885541246083407873
+SkidTab:NewLabel("Skid #1", "center")
+SkidTab:NewLabel("Subject: zoro_ontop, Discord ID: 885541246083407873", "left")
+SkidTab:NewLabel("Game: Mines", "left")
+SkidTab:NewLabel("Reason: Pasted entire script and changed credits </3", "left")
 
 Notifications:Notify("Loaded XSX Lib", 3, "success")

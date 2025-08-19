@@ -168,14 +168,19 @@ UITab:NewLabel("working on modifying the library for more ui functions", "center
 SkidTab:NewLabel("Don't skid, you will appear here :)", "center")
 -- zoro_ontop 885541246083407873
 SkidTab:NewSection("Skid #1")
-SkidTab:NewLabel("Subject: zoro_ontop, \nDiscord ID: 885541246083407873, \nRScripts: https://rscripts.net/@Dead, \nScriptBlox: https://scriptblox.com/u/DEADFR", "left")
+SkidTab:NewLabel("Subject: Dead Hub, \nDiscord ID: 885541246083407873, \nRScripts: https://rscripts.net/@Dead (BANNED), \nScriptBlox: https://scriptblox.com/u/DEADFR", "left")
 SkidTab:NewLabel("Game: Mines", "left")
 SkidTab:NewLabel("Reason: Pasted entire script and changed credits </3", "left")
 
 SkidTab:NewSection("Skid #2")
-SkidTab:NewLabel("Subject: OpenShared, \nRScripts: https://rscripts.net/@OpenShared", "left")
+SkidTab:NewLabel("Subject: Inside Hub, \nRScripts: https://rscripts.net/@OpenShared (BANNED)", "left")
 SkidTab:NewLabel("Game: Mines", "left")
 SkidTab:NewLabel("Reason: How the actual fuck do you break a script that you copy-pasted???????? no credits also.", "left")
+
+SkidTab:NewSection("Skid #3")
+SkidTab:NewLabel("Subject: Vincent Hub, \nDiscord ID: 938721529125023764, \nRScripts: https://rscripts.net/@VincentHubScript (BANNED)", "left")
+SkidTab:NewLabel("Game: Steal a K-Pop Demon Hunter", "left")
+SkidTab:NewLabel("Reason: Literally copied entire source and changed name & credits are we deadass 🙏😭", "left")
 
 -- End of skid list
 SkidTab:NewSection("END OF LIST")

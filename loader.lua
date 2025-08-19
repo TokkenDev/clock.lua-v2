@@ -172,6 +172,11 @@ SkidTab:NewLabel("Subject: zoro_ontop, \nDiscord ID: 885541246083407873, \nRScri
 SkidTab:NewLabel("Game: Mines", "left")
 SkidTab:NewLabel("Reason: Pasted entire script and changed credits </3", "left")
 
+SkidTab:NewSection("Skid #2")
+SkidTab:NewLabel("Subject: OpenShared, \nRScripts: https://rscripts.net/@OpenShared", "left")
+SkidTab:NewLabel("Game: Mines", "left")
+SkidTab:NewLabel("Reason: How the actual fuck do you break a script that you copy-pasted???????? no credits also.", "left")
+
 -- End of skid list
 SkidTab:NewSection("END OF LIST")
 
